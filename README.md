@@ -28,7 +28,7 @@ By using this method, duplicate triples are avoided when pointing to blank nodes
     ```
 
     ```bash
-    <sha1:b4eba29a55992b0c2047c3b19c9018d94393641b> a <c:Person> .
+    <sha1:2408f5f487b26247f9a82a6b9ea76f21b79bb12f> a <def:class:Person> .
     ```
 
 ---
@@ -52,8 +52,7 @@ By using this method, duplicate triples are avoided when pointing to blank nodes
         rdf:type    currency:USDollar ;
         p:amount    "500.00"^^xsd:decimal ;
     ] ;
-] ;
-.
+] .
 ```
 
 ### Resolved `sha256` Output
@@ -67,12 +66,12 @@ By using this method, duplicate triples are avoided when pointing to blank nodes
 @prefix p:         <def:property:> .
 @prefix sha256:    <sha256:> .
 
-sha256:30c839f1a34ac78df4858be36a7e2f05931cb37fda63f21400ead5ae1a2156ca
-    rdf:type c:Product ;
-    p:price sha256:80bdbaee649d7e8e1e075f08c14440dc17640b8745d78c0dc23e46498de28979 .
+sha256:d780d9c620a96223fb7f20bcc948140d6af0ade6a2343e00f42ae47b0a96f3f6
+    a c:Product ;
+    p:price sha256:35608b4b549ba41256ca9e89c3f7882b31dd17ab23e617a1b4f56069912e98d2 .
 
-sha256:80bdbaee649d7e8e1e075f08c14440dc17640b8745d78c0dc23e46498de28979
-    rdf:type currency:USDollar ;
+sha256:35608b4b549ba41256ca9e89c3f7882b31dd17ab23e617a1b4f56069912e98d2
+    a currency:USDollar ;
     p:amount 500.00 .
 ```
 
@@ -92,13 +91,13 @@ sha256:80bdbaee649d7e8e1e075f08c14440dc17640b8745d78c0dc23e46498de28979
 :TimeEntry_2020-01-01
     a c:TimeEntry ;
     p:date "2020-01-01"^^xsd:date ;
-    p:value sha256:30c839f1a34ac78df4858be36a7e2f05931cb37fda63f21400ead5ae1a2156ca ;
+    p:value sha256:d780d9c620a96223fb7f20bcc948140d6af0ade6a2343e00f42ae47b0a96f3f6 ;
     .
 
 :TimeEntry_2020-01-02
     a c:TimeEntry ;
     p:date "2020-01-02"^^xsd:date ;
-    p:value sha256:30c839f1a34ac78df4858be36a7e2f05931cb37fda63f21400ead5ae1a2156ca ;
+    p:value sha256:d780d9c620a96223fb7f20bcc948140d6af0ade6a2343e00f42ae47b0a96f3f6 ;
     .
 ```
 
@@ -140,6 +139,12 @@ sha256:80bdbaee649d7e8e1e075f08c14440dc17640b8745d78c0dc23e46498de28979
 - Cannot resolve circular dependencies between blank nodes.
 
     ```text/turtle
-    _:b1 <property:connectedTo> _:b2 .
-    _:b2 <property:connectedTo> _:b1 .
+    _:b1 <def:property:connectedTo> _:b2 .
+    _:b2 <def:property:connectedTo> _:b1 .
+    ```
+
+- Blank nodes cannot be in the predicate position.
+
+    ```text/turtle
+    <s:0> _:b1 <o:0> .
     ```

@@ -54,7 +54,7 @@ def rdf_hash(data, format: str = None, method: str = "sha256"):
         method (str, optional): Hashing method to use. Defaults to "sha256".
 
     Returns:
-        _type_: rdflib.Graph.
+        Graph: rdflib.Graph.
     """
     graph = convert_data_to_graph(data, format)
 
@@ -99,6 +99,13 @@ def hash_triples(graph: Graph, subject, method="sha256", circ_deps: set = None):
     for triple in triples:
         graph.remove(triple)  # Remove triple from graph.
         nested_hash = None
+
+        # If blank node in predicate position, throw error.
+        if type(triple[1]) == BNode:
+            raise ValueError(
+                f"Blank node cannot be in predicate position: "
+                + " ".join(part.n3() for part in triple)
+            )
 
         # If encountered another blank node, recursively hash it.
         if type(triple[2]) == BNode:

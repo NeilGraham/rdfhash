@@ -1,28 +1,13 @@
+import os
+from os.path import join
+
 from rdflib import Graph
 
 from hash import rdf_hash
 
 
 def test_product_example_sha256():
-    ttl = """
-    @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-    @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-
-    @prefix c:         <def:class:> .
-    @prefix currency:  <def:class:currency> .
-    @prefix p:         <def:property:> .
-    @prefix sha256:    <sha256:> .
-
-    [
-        rdf:type c:Product ;
-        p:price [
-            rdf:type    currency:USDollar ;
-            p:amount    "500.00"^^xsd:decimal ;
-        ] ;
-    ] ;
-    .
-    """
-    graph = rdf_hash(ttl)
+    graph = rdf_hash(join(os.getcwd(), "examples/product_0.ttl"), method="sha256")
 
     graph_compare = Graph().parse(
         data="""
@@ -42,7 +27,7 @@ def test_product_example_sha256():
             a currency:USDollar ;
             p:amount 500.00 .
         """,
-        format="ttl"
+        format="ttl",
     )
-    
+
     assert graph.isomorphic(graph_compare) == True
