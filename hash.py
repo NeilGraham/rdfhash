@@ -1,4 +1,5 @@
 import hashlib
+from os.path import isfile
 
 from rdflib import Graph
 from rdflib.term import URIRef, BNode
@@ -9,73 +10,124 @@ hash_methods = {
 }
 
 
-def rdf_hash(data, format="turtle", method="sha256"):
-    """Hash RDF blank nodes with
+def convert_data_to_graph(data, format: str = None) -> Graph:
+    """Convert data provided to an rdflib.Graph.
 
     Args:
-        data (_type_): _description_
-        format (str, optional): _description_. Defaults to "turtle".
-        method (str, optional): _description_. Defaults to "sha256".
+        data (_type_): Data representing RDF triples.
+        format (str, optional): Format of data. Defaults to None.
 
     Returns:
-        _type_: _description_
+        Graph: rdflib.Graph.
     """
-    graph = Graph().parse(data=data, format=format)
+    type_data = type(data)
+
+    if type_data == Graph:
+        return data
+
+    elif type_data == str:
+        # If is a file, parse file and always let rdflib determine format.
+        if isfile(data):
+            return Graph().parse(data)
+        # If not a file, assume it's a string of RDF triples.
+        else:
+            return Graph().parse(data=data, format=format)
+
+    elif type_data == list:
+        graph = Graph()
+        # Concatenate graphs together for each item in list.
+        for item in data:
+            graph = graph + convert_data_to_graph(item, format)
+        return graph
+
+
+def rdf_hash(data, format: str = None, method: str = "sha256"):
+    """Hash RDF blank node subjects with sum of their triples.
+
+    Sum of triples is calculated by concatenating the predicate and object
+    off of a single subject, sorting all concatenated values, and hashing
+    the result.
+
+    Args:
+        data (_type_): Data representing RDF triples.
+        format (str, optional): Format of data. Defaults to None.
+        method (str, optional): Hashing method to use. Defaults to "sha256".
+
+    Returns:
+        _type_: rdflib.Graph.
+    """
+    graph = convert_data_to_graph(data, format)
 
     # Check all subjects to see whether they are a blank node.
     for [s] in graph.query("select distinct ?s where { ?s ?p ?o }"):
-        # Continue if not a blank node or if already hashed.
-        if type(s) != BNode or (s, None, None) not in graph:
+        # Continue if not a blank node or if already replaced.
+        if type(s) != BNode or ((s, None, None) not in graph):
             continue
 
-        hash_triples(graph, s, method=method)
+        # Hash current blank node triples.
+        hash_triples(graph, s, method)
 
     return graph
 
 
-def hash_triples(graph, subject, method="sha256", circ_deps=None):
+def hash_triples(graph: Graph, subject, method="sha256", circ_deps: set = None):
     """Replaces subject in graph with hash of it's triples.
 
+    If encounters a blank node in the object position, recursively hashes it.
+
     Args:
-        graph (_type_): _description_
-        subject (_type_): _description_
-        method (str, optional): _description_. Defaults to "sha256".
-        circ_deps (_type_, optional): _description_. Defaults to None.
+        graph (Graph): rdflib.Graph.
+        subject (_type_): rdflib.term representing a subject.
+        method (str, optional): Hashing method to use. Defaults to "sha256".
+        circ_deps (set, optional): Set of . Defaults to None.
 
     Raises:
-        ValueError: _description_
+        ValueError: If circular dependency is detected. Unable to resolve
+        current hash.
     """
-    # Initialize set of circular dependencies; Add subject.
+    # Initialize set of circular dependencies.
     if circ_deps == None:
         circ_deps = set()
+    # Add current subject to circular dependencies.
     circ_deps.add(subject)
 
+    hash_value_list = []  # List of values to hash. (`${predicate} ${object}.`)
+    triples_add = []  # List of triples to replace with hashed subject.
+
+    # Get all triples containing subject.
     triples = [*graph.triples((subject, None, None))]
-    value_list = []
-    triples_add = []
     for triple in triples:
+        graph.remove(triple)  # Remove triple from graph.
+        nested_hash = None
+
+        # If encountered another blank node, recursively hash it.
         if type(triple[2]) == BNode:
-            # If subject in circular dependency set, throw error.
+            # If object in circular dependencies, throw error.
             if triple[2] in circ_deps:
                 raise ValueError(
+                    "Unable to resolve hash. "
                     f"Circular dependency detected: {subject} <--> {triple[2]}"
                 )
-            nested_hash = hash_triples(graph, subject, method="sha256", circ_deps=None)
-            triples_add.append((triple[1], nested_hash))
-            value_list.append(f"{triple[1].n3()} {nested_hash.n3()}.")
-            graph.remove(triple[0], triple[1], nested_hash)
+            # Recursively hash object before resolving current subject.
+            nested_hash = hash_triples(graph, triple[2], method, circ_deps)
 
-        else:
-            triples_add.append((triple[1], triple[2]))
-            value_list.append(f"{triple[1].n3()} {triple[2].n3()}.")
-            graph.remove(triple)
+        # Append predicate and object to list to be added later with hashed subject.
+        triples_add.append((triple[1], nested_hash or triple[2]))
+        # Add concatenated predicate and object to list of values to hash.
+        hash_value_list.append(f"{triple[1].n3()} {(nested_hash or triple[2]).n3()}.")
 
-    value_list.sort()
-    hash_subject = URIRef(method + ":") + hash_methods[method]("\n".join(value_list))
-    for triple in triples_add:
-        graph.add([hash_subject, triple[0], triple[1]])
+    # Sort list of strings representing concatenated predicate + object.
+    hash_value_list.sort()
+    # Concatenate sorted list, hash with method, then add to a URIRef.
+    hash_subject = URIRef(method + ":") + hash_methods[method](
+        "\n".join(hash_value_list)
+    )
 
-    # Replace instances of subject in the object position.
+    # Add triples to graph with hashed subject.
+    for pred_obj in triples_add:
+        graph.add((hash_subject, *pred_obj))
+
+    # Replace instances of current subject in the object position.
     for triple in graph.triples((None, None, subject)):
         graph.remove(triple)
         graph.add((triple[0], triple[1], hash_subject))

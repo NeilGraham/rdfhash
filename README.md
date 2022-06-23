@@ -1,6 +1,6 @@
 # RDF Hash
 
-Command-line tool for converting blank nodes to sha256 (+ other hashing algorithm) values.
+Command-line tool for converting blank nodes to sha256 values (+ other hashing algorithms).
 
 Predicates and objects of a blank node subject get hashed together to form a resolvable identifier. The blank node is then replaced with the newly generated hash.
 
