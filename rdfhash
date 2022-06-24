@@ -2,8 +2,10 @@
 
 import argparse
 import sys
+import logging
 
-from hash import rdf_hash, hash_methods
+from helper import hashlib_methods
+from hash import rdf_hash
 
 
 def parse_args(args=list[str]) -> argparse.Namespace:
@@ -27,7 +29,7 @@ def parse_args(args=list[str]) -> argparse.Namespace:
         "--method",
         help="Hash method.",
         default="sha256",
-        choices=hash_methods.keys(),
+        choices=hashlib_methods.keys(),
     )
 
     parser.add_argument(
@@ -38,10 +40,21 @@ def parse_args(args=list[str]) -> argparse.Namespace:
         nargs="+",
     )
 
+    parser.add_argument(
+        "-v", "--verbose", help="Print verbose output.", action="store_true"
+    )
+
     return parser.parse_args(args)
 
 
 if __name__ == "__main__":
+    # Parse arguments.
     args = parse_args(sys.argv[1:])
-    graph = rdf_hash(args.data, args.format, args.method)
+    
+    levels = [logging.WARNING, logging.INFO, logging.DEBUG]
+    level = levels[min(args.verbose, len(levels) - 1)]  # cap to last level index
+    logging.basicConfig(level=level)
+    
+    graph = rdf_hash(args.data, args.format, args.method, args.verbose)
+    
     print(graph.serialize(format=args.accept[0]))
