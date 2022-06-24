@@ -51,7 +51,6 @@ def convert_data_to_graph(data, format: str = None) -> Graph:
     Returns:
         Graph: rdflib.Graph.
     """
-    print(data)
     type_data = type(data)
 
     if type_data == Graph:

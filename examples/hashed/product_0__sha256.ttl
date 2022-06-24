@@ -1,0 +1,11 @@
+@prefix c: <def:class:> .
+@prefix currency: <def:class:currency> .
+@prefix p: <def:property:> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<sha256:d780d9c620a96223fb7f20bcc948140d6af0ade6a2343e00f42ae47b0a96f3f6> a c:Product ;
+    p:price <sha256:35608b4b549ba41256ca9e89c3f7882b31dd17ab23e617a1b4f56069912e98d2> .
+
+<sha256:35608b4b549ba41256ca9e89c3f7882b31dd17ab23e617a1b4f56069912e98d2> a currency:USDollar ;
+    p:amount 500.00 .
+
