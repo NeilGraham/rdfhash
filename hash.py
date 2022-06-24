@@ -6,9 +6,7 @@ from rdflib.term import URIRef, BNode
 from helper import hash_string, convert_data_to_graph
 
 
-def rdf_hash(
-    data, format: str = None, method: str = "sha256", verbose: bool = False
-) -> Graph:
+def rdf_hash(data, format: str = None, method: str = "sha256") -> Graph:
     """Hash RDF blank node subjects with sum of their triples.
 
     Sum of triples is calculated by concatenating the predicate and object
@@ -30,15 +28,13 @@ def rdf_hash(
         # Continue if not a blank node or if already replaced.
         if type(s) != BNode or ((s, None, None) not in graph):
             continue
-            
-        hash_triples(graph, s, method, verbose=verbose)
+
+        hash_triples(graph, s, method)
 
     return graph
 
 
-def hash_triples(
-    graph: Graph, subject, method="sha256", circ_deps: set = None, verbose: bool = False
-):
+def hash_triples(graph: Graph, subject, method="sha256", circ_deps: set = None):
     """Replaces subject in graph with hash of it's triples.
 
     If encounters a blank node in the object position, recursively hashes it.
@@ -91,9 +87,7 @@ def hash_triples(
                     f"detected: {subject.n3()} <--> {triple[2].n3()}"
                 )
             # Recursive call; Resolve hash value of nested triples first.
-            nested_hash = hash_triples(
-                graph, triple[2], method, circ_deps, verbose=verbose
-            )
+            nested_hash = hash_triples(graph, triple[2], method, circ_deps)
 
         # Append predicate and object to list to be added later with hashed subject.
         triples_add.append((triple[1], nested_hash or triple[2]))
@@ -105,11 +99,12 @@ def hash_triples(
     # Join list of strings with '\n'.
     hash_value = "\n".join(hash_value_list)
 
-    if verbose:
-        logging.info(f"Hashing triple set ({len(hash_value_list)}): '{hash_value}'")
+    logging.debug(f"Hashing triple set ({len(hash_value_list)}): '{hash_value}'")
 
     # Concatenate sorted list, hash with method, then add to a URIRef.
     hash_subject = URIRef(method + ":") + hash_string(hash_value, method)
+
+    logging.debug(f"Result of hashed triples: {hash_subject.n3()}")
 
     # Add triples to graph with hashed subject.
     for pred_obj in triples_add:

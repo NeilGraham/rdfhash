@@ -74,7 +74,7 @@ def test__hash_examples(write_output=False):
     # Fail test if any files failed.
     if len(results["failed"]) > 0:
         pytest.fail(
-            f"({len(results['failed'])}) The following files failed the hash test: \n"
+            f"({len(results['failed'])}) The following files failed the hash test: \n-- "
             + "\n-- ".join(results["failed"])
         )
 
