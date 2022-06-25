@@ -10,7 +10,7 @@ from logger import logger
 hash_methods = ["sha256"]
 
 
-def test__hash_examples(force_write=True):
+def test__hash_examples(force_write=False):
     """Test hashing files in './examples'.
 
     Args:

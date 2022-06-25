@@ -13,7 +13,7 @@ _:xbox_series_x
     p:url <https://www.bestbuy.com/site/microsoft-xbox-series-x-1tb-console-black/6428324.p> ;
     p:available false ;
     p:price [
-        rdf:type <def:class:currency:USDollar> ;
+        rdf:type currency:USDollar ;
         p:amount "499.99"^^xsd:decimal ;
     ] .
 

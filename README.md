@@ -33,7 +33,7 @@ SPARQL query used to query for blank node subjects can be changed to select any 
 
 ---
 
-## Example
+## Web-Scraper Example Use Case
 
 ### Blank Node Input
 
@@ -69,62 +69,46 @@ _:ps5
 ### Resolved `sha256` Output
 
 ```text/turtle
-@prefix c: <def:class:> .
-@prefix currency: <def:class:currency> .
-@prefix d: <data:> .
-@prefix p: <def:property:> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-<sha256:128054dcfddf6b42608cd5303a2360b7ee685c684d2e42c259798bf69827a5a4> a <def:class:currency:USDollar> ;
-    p:amount 499.99 .
+@prefix c:         <def:class:> .
+@prefix currency:  <def:class:currency> .
+@prefix p:         <def:property:> .
+@prefix d: <data:> .
 
-<sha256:a0c79d7c20e8aef506d6aa8129bd7c25f05600afd5f3715ce0b7ed5f1e5d8b45> a c:Product ;
+d:TimeEntry__ps5__2020_11_12 a c:TimeEntry ;
+    p:date "2020-11-12"^^xsd:date ;
+    p:value <sha256:20a273b984eadd9667b9955e2797ef38da1e06852a8caaa93672b26fb3ac4100> .
+
+d:TimeEntry__ps5__2022_06_01 a c:TimeEntry ;
+    p:date "2022-06-01"^^xsd:date ;
+    p:value <sha256:20a273b984eadd9667b9955e2797ef38da1e06852a8caaa93672b26fb3ac4100> .
+
+d:TimeEntry__xbox_series_x__2020_10_12 a c:TimeEntry ;
+    p:date "2020-10-12"^^xsd:date ;
+    p:value <sha256:99fc820ee3dba0adc3452058543eb7281d8b5214a1d661f00028de88645eabac> .
+
+<sha256:99fc820ee3dba0adc3452058543eb7281d8b5214a1d661f00028de88645eabac> a c:Product ;
     p:available false ;
     p:name "Microsoft - Xbox Series X 1TB Console - Black" ;
-    p:price <sha256:128054dcfddf6b42608cd5303a2360b7ee685c684d2e42c259798bf69827a5a4> ;
+    p:price <sha256:fcc539213e619877dc193f76f86c6fb4826f78210de348d97cdf2eefb4031dd7> ;
     p:url <https://www.bestbuy.com/site/microsoft-xbox-series-x-1tb-console-black/6428324.p> .
-
-<sha256:fcc539213e619877dc193f76f86c6fb4826f78210de348d97cdf2eefb4031dd7> a currency:USDollar ;
-    p:amount 499.99 .
 
 <sha256:20a273b984eadd9667b9955e2797ef38da1e06852a8caaa93672b26fb3ac4100> a c:Product ;
     p:available false ;
     p:name "Sony - PlayStation 5 Console" ;
     p:price <sha256:fcc539213e619877dc193f76f86c6fb4826f78210de348d97cdf2eefb4031dd7> ;
     p:url <https://www.bestbuy.com/site/sony-playstation-5-console/6426149.p> .
+
+<sha256:fcc539213e619877dc193f76f86c6fb4826f78210de348d97cdf2eefb4031dd7> a currency:USDollar ;
+    p:amount 499.99 .
+
+
 ```
 
 - Nested blank nodes are always resolved first. The hash of nested blank nodes are then used to resolve the hash of a top-level blank node.
 - The nested definition for `c:Price` is referenced 2 times but defined only once.
-
----
-
-## Use Cases
-
-- High frequency web-scraping.
-
-    ```text/turtle
-    @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-    @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-
-    @prefix c:         <def:class:> .
-    @prefix currency:  <def:class:currency> .
-    @prefix p:         <def:property:> .
-
-    @prefix d: <data:> .
-
-    d:TimeEntry_2020-11-12 a c:TimeEntry ;
-        p:date "2020-11-12"^^xsd:date,
-            "2020-11-12"^^xsd:date ;
-        p:value <sha256:20a273b984eadd9667b9955e2797ef38da1e06852a8caaa93672b26fb3ac4100>,
-            <sha256:a0c79d7c20e8aef506d6aa8129bd7c25f05600afd5f3715ce0b7ed5f1e5d8b45> .
-
-    d:TimeEntry_2022-06-01 a c:TimeEntry ;
-        p:date "2022-06-01"^^xsd:date ;
-        p:value <sha256:20a273b984eadd9667b9955e2797ef38da1e06852a8caaa93672b26fb3ac4100> .
-    ```
-
-  - If a product page doesn't change over time, you can reference already defined triples.
 
 ---
 
