@@ -2,6 +2,7 @@ import hashlib
 from os.path import isfile
 
 from rdflib import Graph
+from rdflib.term import URIRef, Literal, BNode, Variable
 
 
 hashlib_methods = {
@@ -70,3 +71,31 @@ def convert_data_to_graph(data, format: str = None) -> Graph:
         for item in data:
             graph = graph + convert_data_to_graph(item, format)
         return graph
+
+
+def rdf_term_to_id(term: URIRef or Literal or BNode or Variable) -> str:
+    """Convert rdflib.term to a resolvable identifier. This is useful for hashing.
+
+    Args:
+        term (URIRef or Literal or BNode or Variable): rdflib.term.
+
+    Returns:
+        str: String identifier for rdflib.term.
+    """
+    type_t = type(term)
+
+    if type_t == URIRef:
+        return term.n3()
+    elif type_t == Literal:
+        return (
+            # If is an 'xsd:string', manually form id.
+            f'"{term.value}"^^<http://www.w3.org/2001/XMLSchema#string>'
+            if term.datatype == None
+            # Else use '.n3()' to form id.
+            else term.n3()
+        )
+    else:
+        raise ValueError(
+            "RDF Term type cannot be converted to a resolvable identifier: "
+            + str(type_t)
+        )
