@@ -5,10 +5,39 @@
 @prefix currency:  <def:class:currency> .
 @prefix p:         <def:property:> .
 
-[
+@prefix d: <data:> .
+
+_:xbox_series_x
     rdf:type c:Product ;
+    p:name "Microsoft - Xbox Series X 1TB Console - Black" ;
+    p:url <https://www.bestbuy.com/site/microsoft-xbox-series-x-1tb-console-black/6428324.p> ;
+    p:available false ;
     p:price [
-        rdf:type    currency:USDollar ;
-        p:amount    "500.00"^^xsd:decimal ;
-    ] ;
-] .
+        rdf:type <def:class:currency:USDollar> ;
+        p:amount "499.99"^^xsd:decimal ;
+    ] .
+
+_:ps5
+    rdf:type c:Product ;
+    p:name "Sony - PlayStation 5 Console" ;
+    p:url <https://www.bestbuy.com/site/sony-playstation-5-console/6426149.p> ;
+    p:available false ;
+    p:price [
+        rdf:type currency:USDollar ;
+        p:amount "499.99"^^xsd:decimal ;
+    ] .
+
+d:TimeEntry__ps5__2020_11_12
+    a c:TimeEntry ;
+    p:date "2020-11-12"^^xsd:date ;
+    p:value _:ps5 .
+
+d:TimeEntry__xbox_series_x__2020_10_12
+    a c:TimeEntry ;
+    p:date "2020-10-12"^^xsd:date ;
+    p:value _:xbox_series_x .
+
+d:TimeEntry__ps5__2022_06_01
+    a c:TimeEntry ;
+    p:date "2022-06-01"^^xsd:date ;
+    p:value _:ps5 .

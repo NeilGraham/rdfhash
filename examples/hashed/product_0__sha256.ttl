@@ -1,11 +1,36 @@
 @prefix c: <def:class:> .
 @prefix currency: <def:class:currency> .
+@prefix d: <data:> .
 @prefix p: <def:property:> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-<sha256:d780d9c620a96223fb7f20bcc948140d6af0ade6a2343e00f42ae47b0a96f3f6> a c:Product ;
-    p:price <sha256:35608b4b549ba41256ca9e89c3f7882b31dd17ab23e617a1b4f56069912e98d2> .
+d:TimeEntry__ps5__2020_11_12 a c:TimeEntry ;
+    p:date "2020-11-12"^^xsd:date ;
+    p:value <sha256:20a273b984eadd9667b9955e2797ef38da1e06852a8caaa93672b26fb3ac4100> .
 
-<sha256:35608b4b549ba41256ca9e89c3f7882b31dd17ab23e617a1b4f56069912e98d2> a currency:USDollar ;
-    p:amount 500.00 .
+d:TimeEntry__ps5__2022_06_01 a c:TimeEntry ;
+    p:date "2022-06-01"^^xsd:date ;
+    p:value <sha256:20a273b984eadd9667b9955e2797ef38da1e06852a8caaa93672b26fb3ac4100> .
+
+d:TimeEntry__xbox_series_x__2020_10_12 a c:TimeEntry ;
+    p:date "2020-10-12"^^xsd:date ;
+    p:value <sha256:a0c79d7c20e8aef506d6aa8129bd7c25f05600afd5f3715ce0b7ed5f1e5d8b45> .
+
+<sha256:128054dcfddf6b42608cd5303a2360b7ee685c684d2e42c259798bf69827a5a4> a <def:class:currency:USDollar> ;
+    p:amount 499.99 .
+
+<sha256:a0c79d7c20e8aef506d6aa8129bd7c25f05600afd5f3715ce0b7ed5f1e5d8b45> a c:Product ;
+    p:available false ;
+    p:name "Microsoft - Xbox Series X 1TB Console - Black" ;
+    p:price <sha256:128054dcfddf6b42608cd5303a2360b7ee685c684d2e42c259798bf69827a5a4> ;
+    p:url <https://www.bestbuy.com/site/microsoft-xbox-series-x-1tb-console-black/6428324.p> .
+
+<sha256:fcc539213e619877dc193f76f86c6fb4826f78210de348d97cdf2eefb4031dd7> a currency:USDollar ;
+    p:amount 499.99 .
+
+<sha256:20a273b984eadd9667b9955e2797ef38da1e06852a8caaa93672b26fb3ac4100> a c:Product ;
+    p:available false ;
+    p:name "Sony - PlayStation 5 Console" ;
+    p:price <sha256:fcc539213e619877dc193f76f86c6fb4826f78210de348d97cdf2eefb4031dd7> ;
+    p:url <https://www.bestbuy.com/site/sony-playstation-5-console/6426149.p> .
 
