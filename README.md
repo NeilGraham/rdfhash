@@ -75,19 +75,6 @@ _:ps5
 @prefix c:         <def:class:> .
 @prefix currency:  <def:class:currency> .
 @prefix p:         <def:property:> .
-@prefix d: <data:> .
-
-d:TimeEntry__ps5__2020_11_12 a c:TimeEntry ;
-    p:date "2020-11-12"^^xsd:date ;
-    p:value <sha256:20a273b984eadd9667b9955e2797ef38da1e06852a8caaa93672b26fb3ac4100> .
-
-d:TimeEntry__ps5__2022_06_01 a c:TimeEntry ;
-    p:date "2022-06-01"^^xsd:date ;
-    p:value <sha256:20a273b984eadd9667b9955e2797ef38da1e06852a8caaa93672b26fb3ac4100> .
-
-d:TimeEntry__xbox_series_x__2020_10_12 a c:TimeEntry ;
-    p:date "2020-10-12"^^xsd:date ;
-    p:value <sha256:99fc820ee3dba0adc3452058543eb7281d8b5214a1d661f00028de88645eabac> .
 
 <sha256:99fc820ee3dba0adc3452058543eb7281d8b5214a1d661f00028de88645eabac> a c:Product ;
     p:available false ;
@@ -103,8 +90,6 @@ d:TimeEntry__xbox_series_x__2020_10_12 a c:TimeEntry ;
 
 <sha256:fcc539213e619877dc193f76f86c6fb4826f78210de348d97cdf2eefb4031dd7> a currency:USDollar ;
     p:amount 499.99 .
-
-
 ```
 
 - Nested blank nodes are always resolved first. The hash of nested blank nodes are then used to resolve the hash of a top-level blank node.
