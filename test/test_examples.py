@@ -4,8 +4,8 @@ from pathlib import Path
 from rdflib import Graph
 import pytest
 
-from hash import rdfhash
-from logger import logger
+from rdfhash import rdfhash
+from rdfhash.logger import logger
 
 hash_methods = ["sha256"]
 

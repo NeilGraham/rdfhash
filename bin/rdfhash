@@ -3,11 +3,13 @@
 import argparse
 import sys
 import logging
+from os.path import join, dirname, normpath
 
-from helper import hashlib_methods
-from hash import rdfhash
+sys.path.append(join(dirname(normpath(__file__)), ".."))
 
-from logger import logger
+from rdfhash.logger import logger
+from rdfhash.helper import hashlib_methods
+from rdfhash import rdfhash
 
 
 def parse_args(args=list[str]) -> argparse.Namespace:
@@ -16,7 +18,8 @@ def parse_args(args=list[str]) -> argparse.Namespace:
         description="Hash RDF blank nodes with sha256.",
     )
 
-    parser.add_argument("-d", "--data", required=True, help="Input data. (RDF)")
+    parser.add_argument("-d", "--data", required=True,
+                        help="Input data. (RDF)")
 
     parser.add_argument(
         "-f",

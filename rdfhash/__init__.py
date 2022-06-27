@@ -1,9 +1,8 @@
 from rdflib import Graph
 from rdflib.term import URIRef, BNode
 
-from helper import hash_string, convert_data_to_graph, rdf_term_to_id
-
-from logger import logger
+from .helper import hash_string, convert_data_to_graph, rdf_term_to_id
+from .logger import logger
 
 
 def rdfhash(
