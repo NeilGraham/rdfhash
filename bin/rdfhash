@@ -7,19 +7,19 @@ from os.path import join, dirname, normpath
 
 sys.path.append(join(dirname(normpath(__file__)), ".."))
 
-from rdfhash.logger import logger
-from rdfhash.helper import hashlib_methods
-from rdfhash import rdfhash
+from package.logger import logger
+from package.helper import hashlib_methods
+from package import rdfhash
 
 
 def parse_args(args=list[str]) -> argparse.Namespace:
     """Use argparse to parse list of arguments."""
     parser = argparse.ArgumentParser(
-        description="Hash RDF blank nodes with sha256.",
+        description="Replace selected subjects with hash of their triples "
+        "(`{predicate} {object}.\\n` sorted + joined).",
     )
 
-    parser.add_argument("-d", "--data", required=True,
-                        help="Input data. (RDF)")
+    parser.add_argument("-d", "--data", required=True, help="Input data. (RDF)")
 
     parser.add_argument(
         "-f",
@@ -58,6 +58,14 @@ def parse_args(args=list[str]) -> argparse.Namespace:
         action="store_true",
     )
 
+    parser.add_argument(
+        "--sparql",
+        "--sparql-select-subjects",
+        default="SELECT DISTINCT ?s WHERE { ?s ?p ?o . FILTER (isBlank(?s)) }",
+        help="SPARQL SELECT query returning subject URIs to replace with hash of"
+        " their triples. Defaults to all blank node subjects.",
+    )
+
     return parser.parse_args(args)
 
 
@@ -70,6 +78,6 @@ if __name__ == "__main__":
     elif args.verbose:
         logger.setLevel(logging.INFO)
 
-    graph = rdfhash(args.data, args.format, args.method)
+    graph = rdfhash(args.data, args.format, args.method, args.sparql)
 
     print(graph.serialize(format=args.accept[0]))

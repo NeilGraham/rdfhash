@@ -6,28 +6,28 @@
 
 d:TimeEntry__ps5__2020_11_12 a c:TimeEntry ;
     p:date "2020-11-12"^^xsd:date ;
-    p:value <sha256:20a273b984eadd9667b9955e2797ef38da1e06852a8caaa93672b26fb3ac4100> .
+    p:value <sha256:9267e62fc55b676e59ec517bbc696b4a1cca57ba96f9e4abbb64e6c1e51f6aa2> .
 
 d:TimeEntry__ps5__2022_06_01 a c:TimeEntry ;
     p:date "2022-06-01"^^xsd:date ;
-    p:value <sha256:20a273b984eadd9667b9955e2797ef38da1e06852a8caaa93672b26fb3ac4100> .
+    p:value <sha256:9267e62fc55b676e59ec517bbc696b4a1cca57ba96f9e4abbb64e6c1e51f6aa2> .
 
 d:TimeEntry__xbox_series_x__2020_10_12 a c:TimeEntry ;
     p:date "2020-10-12"^^xsd:date ;
-    p:value <sha256:99fc820ee3dba0adc3452058543eb7281d8b5214a1d661f00028de88645eabac> .
+    p:value <sha256:a6f9429536bf588dcac8144d6a4ca2f9f294253674e5a6060800024b5fc5f506> .
 
-<sha256:99fc820ee3dba0adc3452058543eb7281d8b5214a1d661f00028de88645eabac> a c:Product ;
+<sha256:a6f9429536bf588dcac8144d6a4ca2f9f294253674e5a6060800024b5fc5f506> a c:Product ;
     p:available false ;
     p:name "Microsoft - Xbox Series X 1TB Console - Black" ;
-    p:price <sha256:fcc539213e619877dc193f76f86c6fb4826f78210de348d97cdf2eefb4031dd7> ;
+    p:price <sha256:17abcd2261fe38a6c8fe8011bf43024f9a359ff66e7cf5c33886b17c84150f6a> ;
     p:url <https://www.bestbuy.com/site/microsoft-xbox-series-x-1tb-console-black/6428324.p> .
 
-<sha256:20a273b984eadd9667b9955e2797ef38da1e06852a8caaa93672b26fb3ac4100> a c:Product ;
+<sha256:17abcd2261fe38a6c8fe8011bf43024f9a359ff66e7cf5c33886b17c84150f6a> a currency:USDollar ;
+    p:amount 499.99 .
+
+<sha256:9267e62fc55b676e59ec517bbc696b4a1cca57ba96f9e4abbb64e6c1e51f6aa2> a c:Product ;
     p:available false ;
     p:name "Sony - PlayStation 5 Console" ;
-    p:price <sha256:fcc539213e619877dc193f76f86c6fb4826f78210de348d97cdf2eefb4031dd7> ;
+    p:price <sha256:17abcd2261fe38a6c8fe8011bf43024f9a359ff66e7cf5c33886b17c84150f6a> ;
     p:url <https://www.bestbuy.com/site/sony-playstation-5-console/6426149.p> .
-
-<sha256:fcc539213e619877dc193f76f86c6fb4826f78210de348d97cdf2eefb4031dd7> a currency:USDollar ;
-    p:amount 499.99 .
 

@@ -9,8 +9,9 @@ def rdfhash(
     data,
     format: str = None,
     method: str = "sha256",
-    sparql_select_subjects="SELECT DISTINCT ?s WHERE "
-    + "{ ?s ?p ?o . FILTER (isBlank(?s)) }",
+    sparql_select_subjects=(
+        "SELECT DISTINCT ?s WHERE { ?s ?p ?o . FILTER (isBlank(?s)) }"
+    ),
 ) -> Graph:
     """Hash RDF blank node subjects with sum of their triples.
 
@@ -37,16 +38,17 @@ def rdfhash(
     """
     # Convert data provided to rdflib.Graph.
     graph: Graph = convert_data_to_graph(data, format)
+    len_before = len(graph)
 
     # Use SPARQL query 'sparql_select_subject' to get list of subjects to hash.
     select_subjects = set([r[0] for r in graph.query(sparql_select_subjects)])
 
     logger.info(
-        f"\n\n({len(select_subjects)}) Hashing subject triples:\n-- "
+        f"\n({len(select_subjects)}) Hashing subject triples:\n-- "
         + "\n-- ".join([s.n3() for s in select_subjects])
     )
 
-    hashed_values = {} # Dictionary of subjects and resolved hash values.
+    hashed_values = {}  # Dictionary of subjects and resolved hash values.
 
     for s in select_subjects:
         # Continue if subject is already replaced or N/A.
@@ -57,9 +59,17 @@ def rdfhash(
         hashed_values.update(hash_triples(graph, s, method, select_subjects))
 
     logger.info(
-        f"\n\n({len(hashed_values)}) Hashed values:\n"
+        f"\n({len(hashed_values)}) Hashed subjects:\n-- "
         + "\n-- ".join(f"{k.n3()} -> {v.n3()}" for k, v in hashed_values.items())
     )
+
+    len_after = len(graph)
+    if len_before == len_after:
+        logger.info(f"(=) Graph size did not change: {len_before}")
+    else:
+        logger.info(
+            f"(-{len_before-len_after}) Graph size reduced from {len_before} to {len_after}."
+        )
 
     return graph
 
@@ -81,7 +91,8 @@ def hash_triples(
         method (str, optional): Hashing method to use. Defaults to "sha256".
         also_subjects (set, optional) If encounters any of these terms in triples,
             recursively resolves them. Defaults to None.
-        circ_deps (set, optional): Set of . Defaults to None.
+        circ_deps (set, optional): Set of values which 'subject' cannot be. 
+            Defaults to None.
 
     Raises:
         ValueError: If blank node in predicate position of any triples.
@@ -143,19 +154,19 @@ def hash_triples(
         # Append predicate and object to list to be added later with hashed subject.
         triples_add.append(triple_new)
 
-        # Add concatenated predicate and object to list of values to hash.
+        # Append `{predicate} {object}.\n` to list of values to hash.
         hash_value_list.append(
-            f"{rdf_term_to_id(triple_new[0])} {rdf_term_to_id(triple_new[1])}."
+            f"{rdf_term_to_id(triple_new[0])} {rdf_term_to_id(triple_new[1])}.\n"
         )
 
     # Sort and concatenate list, hash value, then add to graph.
     # ---------------------------------------------------------
 
-    # Sort list of strings: `${predicate} ${object}.`
+    # Sort list of strings: `{predicate} {object}.\n`
     hash_value_list.sort()
 
-    # Join list of strings with `\n`.
-    hash_value = "\n".join(hash_value_list)
+    # Join list of strings to be hashed.
+    hash_value = "".join(hash_value_list)
 
     logger.debug(f'({len(hash_value_list)}) Hashing triple set: """{hash_value}"""')
 

@@ -1,8 +1,10 @@
 # RDF Hash
 
-Command-line tool for hashing blank node triples into unique identifiers ( `sha256`, `md5`, `blake2b`, etc. ).
+Command-line tool for hashing RDF definitions into resolvable identifiers ( `sha256`, `md5`, `blake2b`, etc. ).
 
-Predicates and objects on a blank node subject are sorted then hashed together to form a unique identifier. The blank node subject is then replaced with the hash of it's sorted triples.
+Selected subjects (Default: blank node subjects) are replaced with hash of their triples.
+
+Set of triples on a given subject are sorted by `{predicate} {object}.\n`, then hashed together. The hash result replaces the subject URI (Ex: `<md5:fdd61ec7cdbc7241f0289339678dd008>`).
 
 ## Setup
 
@@ -25,12 +27,43 @@ Predicates and objects on a blank node subject are sorted then hashed together t
     ```
 
     ```bash
-    <sha1:2408f5f487b26247f9a82a6b9ea76f21b79bb12f> a <def:class:Person> .
+    <sha1:f0392681a6a701d9672925133bf1207f4be9e412> a <def:class:Person> .
     ```
+
+### Command-Line Interface
+
+```
+rdfhash [-h] -d DATA [-f {turtle,n-triples,trig,n-quads,n3,rdf}]
+        [-m {md5,sha1,sha224,sha256,sha384,sha512,sha3_224,sha3_256,sha3_384,sha3_512,blake2b,blake2s}]
+        [-a ACCEPT [ACCEPT ...]] [-v] [--debug] [--sparql SPARQL]
+
+Replace selected subjects with hash of their triples (`{predicate} {object}.\n` sorted + joined).
+
+options:
+  -h, --help            show this help message and exit
+  -d DATA, --data DATA  Input data. (RDF)
+  -f {turtle,n-triples,trig,n-quads,n3,rdf}, --format {turtle,n-triples,trig,n-quads,n3,rdf}
+                        Input format.
+  -m {md5,sha1,sha224,sha256,sha384,sha512,sha3_224,sha3_256,sha3_384,sha3_512,blake2b,blake2s}, --method {md5,sha1,sha224,sha256,sha384,sha512,sha3_224,sha3_256,sha3_384,sha3_512,blake2b,blake2s}
+                        Hash method.
+  -a ACCEPT [ACCEPT ...], --accept ACCEPT [ACCEPT ...]
+                        Accept format.
+  -v, --verbose         Show 'info' level logs.
+  --debug               Show 'debug' level logs.
+  --sparql SPARQL, --sparql-select-subjects SPARQL
+                        SPARQL SELECT query returning subject URIs to replace with hash of their triples. Defaults to all
+                        blank node subjects.
+```
 
 ---
 
-## Web-Scraper Example
+## Example
+
+Test the tool out on the directory `./examples`.
+
+    ```bash
+    rdfhash --data ./examples/product_0.ttl
+    ```
 
 ### Blank Node Input
 
@@ -66,28 +99,26 @@ _:ps5
 ### `md5` Output
 
 ```text/turtle
-<md5:f5d6f1a4fe970099ea56f4ac626ad4a8>
-    rdf:type c:Product ;
+<md5:e2edf345944d2d2360ca0af3a2e263e5>
+    a c:Product ;
     p:available false ;
     p:name "Microsoft - Xbox Series X 1TB Console - Black" ;
-    p:price <md5:fdd61ec7cdbc7241f0289339678dd008> ;
+    p:price <md5:230919236fbe71a692d10c9a693fdd2b> ;
     p:url <https://www.bestbuy.com/site/microsoft-xbox-series-x-1tb-console-black/6428324.p> .
 
-<md5:64eee8e358fd1b6340385f4588e5536b>
-    rdf:type c:Product ;
+<md5:64c8f3c04879effcad67df5e62c00245>
+    a c:Product ;
     p:available false ;
     p:name "Sony - PlayStation 5 Console" ;
-    p:price <md5:fdd61ec7cdbc7241f0289339678dd008> ;
+    p:price <md5:230919236fbe71a692d10c9a693fdd2b> ;
     p:url <https://www.bestbuy.com/site/sony-playstation-5-console/6426149.p> .
 
-<md5:fdd61ec7cdbc7241f0289339678dd008>
-    rdf:type currency:USDollar ;
+<md5:230919236fbe71a692d10c9a693fdd2b>
+    a currency:USDollar ;
     p:amount 499.99 .
 ```
 
-- Default hashing method is `sha256`. You can change this by passing the `--method` flag.
-- Nested blank nodes are always resolved first. The hash of nested blank nodes are then used to resolve the hash of a top-level blank node.
-- The nested definition for `c:Price` is referenced 2 times but defined only once.
+- The nested definition for `499.99` USD is referenced 2 times and defined only once.
 
 ### Simple time-entry data
 
@@ -97,17 +128,17 @@ _:ps5
 d:TimeEntry__ps5__2020_11_12
     a c:TimeEntry ;
     p:date "2020-11-12"^^xsd:date ;
-    p:value <md5:64eee8e358fd1b6340385f4588e5536b> .
+    p:value <md5:64c8f3c04879effcad67df5e62c00245> .
 
 d:TimeEntry__xbox_series_x__2020_10_12
     a c:TimeEntry ;
     p:date "2020-10-12"^^xsd:date ;
-    p:value <md5:f5d6f1a4fe970099ea56f4ac626ad4a8> .
+    p:value <md5:e2edf345944d2d2360ca0af3a2e263e5> .
 
 d:TimeEntry__ps5__2022_06_01
     a c:TimeEntry ;
     p:date "2022-06-01"^^xsd:date ;
-    p:value <md5:64eee8e358fd1b6340385f4588e5536b> .
+    p:value <md5:64c8f3c04879effcad67df5e62c00245> .
 ```
 
 - If a webscraper encounters the exact same definition, output RDF will be identical. Only triples added are references to the existing triples.
@@ -117,40 +148,43 @@ d:TimeEntry__ps5__2022_06_01
 ## Limitations
 
 - Named graphs are currently not supported.
-- All blank node statements are expected to be static (all or nothing). Updating statements on a hashed subject will result in a hash mismatch.
-  - Blank node statement:
+- Cannot update triples on hashed subjects.
+  - Updating statements on a hashed subject will result in a hash mismatch.
+  - Blank node statement input:
 
     ```text/turtle
     [ a <def:class:Person> ] .
     ```
 
-  - Hashed subject:
+  - Hashed subject output:
 
     ```text/turtle
-    <sha1:2408f5f487b26247f9a82a6b9ea76f21b79bb12f> 
+    <sha1:f0392681a6a701d9672925133bf1207f4be9e412>
         a <def:class:Person> .
     ```
 
   - Updating statements on hashed subject:
 
     ```text/turtle
-    # sha1 Result: c0f62a34306ecd165adb6a1af4ac1f608f94f5e6
+    # Actual sha1 Result: 0c0140462cb569cb700fe5d01bf5efb3185cdb4d
 
-    <sha1:2408f5f487b26247f9a82a6b9ea76f21b79bb12f>
+    <sha1:f0392681a6a701d9672925133bf1207f4be9e412>
         a <def:class:Person> ;
         <def:property:age> "24"^^<http://www.w3.org/2001/XMLSchema#integer> .
     ```
 
-    - Mismatch between original (`<sha1:2408f5f487b26247f9a82a6b9ea76f21b79bb12f>`) and actual (`<sha1:c0f62a34306ecd165adb6a1af4ac1f608f94f5e6>`)
+    - Mismatch between original hash and actual hash result.
+      - Original: `<sha1:f0392681a6a701d9672925133bf1207f4be9e412>`
+      - Actual: `<sha1:0c0140462cb569cb700fe5d01bf5efb3185cdb4d>`
 
-- Cannot resolve circular dependencies between blank nodes.
+- Cannot resolve circular dependencies between selected subjects.
 
     ```text/turtle
     _:b1 <def:property:connectedTo> _:b2 .
     _:b2 <def:property:connectedTo> _:b1 .
     ```
 
-- Mixing hashing methods.
+- Using multiple hashing methods is not recommended.
 
     ```text/turtle
     _:error_multiple_hash_methods
@@ -158,4 +192,5 @@ d:TimeEntry__ps5__2022_06_01
         <p:1> <sha1:2408f5f487b26247f9a82a6b9ea76f21b79bb12f> .
     ```
 
-    - Using multiple hashing methods will result in 
+    - Using multiple hashing methods can result in duplicate hashed statements. 
+    - Sticking with 1 hashing method allows for the smallest possible graph size.
