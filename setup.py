@@ -3,7 +3,7 @@ from os import path, getcwd
 
 setup(
     name="rdfhash",
-    version="0.2.6",
+    version="0.2.7",
     author="Neil Graham",
     author_email="grahamneiln@gmail.com",
     url="https://github.com/NeilGraham/rdfhash",
