@@ -10,7 +10,7 @@ Set of triples on a given subject are sorted by `{predicate} {object}.\n`, then 
 
 ### Dependencies
 
-- Python: **3.10**
+- Python: **3.10** or **3.11**
     - [MacOS/Windows Installer](https://www.python.org/downloads/)
     - [Debian/Ubuntu (`apt`) Installation Guide](docs/apt_install.md)
 

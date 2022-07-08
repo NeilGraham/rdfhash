@@ -1,7 +1,7 @@
 from rdflib import Graph
 from rdflib.term import URIRef, BNode
 
-from .helper import hash_string, convert_data_to_graph, rdf_term_to_id
+from .helper import hash_string, convert_data_to_graph, rdf_term_to_id, hashlib_methods
 from .logger import logger
 
 
@@ -37,7 +37,7 @@ def rdfhash(
             list of subjects which will have their triples hashed.
 
     Returns:
-        Graph: rdflib.Graph.
+        Graph: Updated 'data' graph.
     """
     # Convert data provided to rdflib.Graph.
     graph: Graph = convert_data_to_graph(data, format)
@@ -190,3 +190,55 @@ def hash_triples(
     # Add hashed subject to 'hashed_values' and return.
     hashed_values[subject] = hash_subject
     return hashed_values
+
+
+def reverse_hash(data, format: str = None) -> Graph:
+    """Convert hashed URIs to blank nodes.
+
+    Args:
+        data (_type_): Data representing RDF triples.
+        format (str, optional): Format of data. Defaults to None.
+
+    Returns:
+        Graph: Updated 'data' graph.
+    """
+    bnode_int = 0
+    bnode_dict = {}
+
+    # Convert data provided to rdflib.Graph.
+    graph: Graph = convert_data_to_graph(data, format)
+
+    # Check every term in graph.
+    for triple in graph:
+        new_triple = []  # Replaces 'triple'.
+        updated = False  # Tracks whether 'new_triple' is different to 'triple'.
+
+        for term in triple:
+            # Skip update if starts with 'http' (most common case). 
+            # No hash method is expected to start with this string.
+            if term.startswith("http"):
+                new_triple.append(term)
+            # If URI is already replaced, use replacement.
+            elif term in bnode_dict:
+                updated = True
+                new_triple.append(bnode_dict[term])
+            # Check to see if term starts with any of the possible hash methods.
+            elif any(
+                term.startswith(hash_string + ":")
+                for hash_string in hashlib_methods.keys()
+            ):
+                updated = True
+                bnode = BNode(bnode_int)
+                bnode_int += 1
+                bnode_dict[term] = bnode
+                new_triple.append(bnode)
+            # If does not start with hash method, do not update.
+            else:
+                new_triple.append(term)
+
+        # If 'new_triple' is different to 'triple', replace with new.
+        if updated:
+            graph.remove(triple)
+            graph.add(new_triple)
+
+    return graph
