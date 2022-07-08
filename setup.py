@@ -18,7 +18,7 @@ setup(
     long_description_content_type="text/markdown",
     packages=["rdfhash"],
     package_dir={"rdfhash": "package"},
-    entry_points={"console_scripts": ["rdfhash = package.__main__:run"]},
+    entry_points={"console_scripts": ["rdfhash = rdfhash.__main__:run"]},
     python_requires=">=3.10",
     install_requires=[
         "pytest >= 7.1.2",
