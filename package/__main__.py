@@ -2,9 +2,9 @@ import argparse
 import sys
 import logging
 
-from package import rdfhash, reverse_hash
-from package.logger import logger
-from package.helper import hashlib_methods
+from .hash import rdfhash, reverse_hash
+from .logger import logger
+from .helper import hashlib_methods
 
 
 def add_io_args(parser: argparse.ArgumentParser):
@@ -97,7 +97,7 @@ def get_parser() -> argparse.ArgumentParser:
     add_io_args(parser_reverse)
 
     add_debug_args(parser_reverse)
-    
+
     return parser
 
 

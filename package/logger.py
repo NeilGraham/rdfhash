@@ -26,6 +26,7 @@ class CustomFormatter(logging.Formatter):
         formatter = logging.Formatter(log_fmt)
         return formatter.format(record)
 
+
 # Create 'logger' to be imported.
 logger = logging.getLogger("rdfhash")
 logger.setLevel(logging.WARNING)

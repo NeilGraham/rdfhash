@@ -4,13 +4,14 @@ from pathlib import Path
 from rdflib import Graph
 import pytest
 
-from package import rdfhash, reverse_hash
+from package.hash import rdfhash
 from package.logger import logger
 
 hash_methods = ["sha256"]
 
-script_path = Path( __file__ ).absolute()
-examples_path = path.join(script_path, '..', 'examples')
+script_path = Path(__file__).parent.absolute()
+examples_path = path.join(script_path, "..", "examples")
+
 
 def test__hash_examples(force_write=False):
     """Test hashing files in './examples'.
@@ -26,7 +27,7 @@ def test__hash_examples(force_write=False):
 
     # Test each file in './examples'.
     # -------------------------------
-    
+
     # Iterate over each file in './examples'.
     for file in test_files:
         file_path = path.join(getcwd(), "examples", file)
@@ -114,6 +115,7 @@ def test__hash_examples(force_write=False):
             f"\n({len(results['failed'])}) The following files failed the hash test: \n-- "
             + "\n-- ".join(results["failed"])
         )
+
 
 # def test__reverse_hash():
 #     test_files = listdir(examples_path)
