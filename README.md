@@ -2,7 +2,7 @@
 
 Command-line tool for hashing RDF definitions into resolvable identifiers ( `sha256`, `md5`, `blake2b`, etc. ).
 
-Selected subjects (Default: blank node subjects) are replaced with hash of their triples.
+Selected subjects are replaced with hash of their triples (Default: blank node subjects).
 
 Set of triples on a given subject are sorted by `{predicate} {object}.\n`, then hashed together. The hash result replaces the subject URI (Ex: `<md5:fdd61ec7cdbc7241f0289339678dd008>`).
 
@@ -10,7 +10,9 @@ Set of triples on a given subject are sorted by `{predicate} {object}.\n`, then 
 
 ### Dependencies
 
-- Python: [3.10](https://www.python.org/downloads/)
+- Python: **3.10**
+    - [MacOS/Windows Installer](https://www.python.org/downloads/)
+    - [Debian/Ubuntu (`apt`) Installation Guide](docs/apt_install.md)
 
 ### Getting Started
 
@@ -61,9 +63,9 @@ options:
 
 Test the tool out on the directory `./examples`.
 
-    ```bash
-    rdfhash --data ./examples/product_0.ttl
-    ```
+```bash
+rdfhash --data ./examples/product_0.ttl
+```
 
 ### Blank Node Input
 

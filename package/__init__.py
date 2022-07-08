@@ -22,9 +22,12 @@ def rdfhash(
 
         Data: `[ <p:name> "John"; <p:age> 24; <p:location> "US" ] .`
 
-        Hash Input: `<p:name> "John".\n<p:age> 24.\n`
+        Hash Input:
+            `<p:name> "John"^^<http://www.w3.org/2001/XMLSchema#string>.\n`
+            `<p:age> "24"^^<http://www.w3.org/2001/XMLSchema#decimal>.\n`
+            `<p:location> "US"^^<http://www.w3.org/2001/XMLSchema#string>.\n`
 
-        Hash Output: `<md5:b98bd65908f5bdf73f85008a086a89e0>`
+        Hash Output: `<md5:840c3957b27ad45bbfaf3565a46b0d0b>`
 
     Args:
         data (_type_): Data representing RDF triples.
@@ -91,7 +94,7 @@ def hash_triples(
         method (str, optional): Hashing method to use. Defaults to "sha256".
         also_subjects (set, optional) If encounters any of these terms in triples,
             recursively resolves them. Defaults to None.
-        circ_deps (set, optional): Set of values which 'subject' cannot be. 
+        circ_deps (set, optional): Set of values which 'subject' cannot be.
             Defaults to None.
 
     Raises:

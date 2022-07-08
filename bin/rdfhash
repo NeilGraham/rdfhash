@@ -1,83 +1,16 @@
-#!/usr/bin/env python3.10
+#!/usr/bin/env bash
 
-import argparse
-import sys
-import logging
-from os.path import join, dirname, normpath
+SCRIPT_PATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+RDFHASH_PYTHON_PATH="$SCRIPT_PATH/../package/cli.py"
 
-sys.path.append(join(dirname(normpath(__file__)), ".."))
-
-from package.logger import logger
-from package.helper import hashlib_methods
-from package import rdfhash
-
-
-def parse_args(args=list[str]) -> argparse.Namespace:
-    """Use argparse to parse list of arguments."""
-    parser = argparse.ArgumentParser(
-        description="Replace selected subjects with hash of their triples "
-        "(`{predicate} {object}.\\n` sorted + joined).",
-    )
-
-    parser.add_argument("-d", "--data", required=True, help="Input data. (RDF)")
-
-    parser.add_argument(
-        "-f",
-        "--format",
-        help="Input format.",
-        default=None,
-        choices=["turtle", "n-triples", "trig", "n-quads", "n3", "rdf"],
-    )
-
-    parser.add_argument(
-        "-m",
-        "--method",
-        help="Hash method.",
-        default="sha256",
-        choices=hashlib_methods.keys(),
-    )
-
-    parser.add_argument(
-        "-a",
-        "--accept",
-        help="Accept format.",
-        default=["turtle"],
-        nargs="+",
-    )
-
-    parser.add_argument(
-        "-v",
-        "--verbose",
-        help="Show 'info' level logs.",
-        action="store_true",
-    )
-
-    parser.add_argument(
-        "--debug",
-        help="Show 'debug' level logs.",
-        action="store_true",
-    )
-
-    parser.add_argument(
-        "--sparql",
-        "--sparql-select-subjects",
-        default="SELECT DISTINCT ?s WHERE { ?s ?p ?o . FILTER (isBlank(?s)) }",
-        help="SPARQL SELECT query returning subject URIs to replace with hash of"
-        " their triples. Defaults to all blank node subjects.",
-    )
-
-    return parser.parse_args(args)
-
-
-if __name__ == "__main__":
-    # Parse arguments.
-    args = parse_args(sys.argv[1:])
-
-    if args.debug:
-        logger.setLevel(logging.DEBUG)
-    elif args.verbose:
-        logger.setLevel(logging.INFO)
-
-    graph = rdfhash(args.data, args.format, args.method, args.sparql)
-
-    print(graph.serialize(format=args.accept[0]))
+# Use python3.11 if installed.
+if which python3.11 > /dev/null 2>&1; then
+    python3.11 $RDFHASH_PYTHON_PATH "$@"
+# Use python3.10 if installed.
+elif which python3.10 > /dev/null 2>&1; then
+    python3.10 $RDFHASH_PYTHON_PATH "$@"
+# Throw error if dependencies are not installed.
+else
+    printf "ERROR: python3.10 / python3.11 are required to run script 'rdfhash'\n"
+    exit 1
+fi
