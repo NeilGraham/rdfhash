@@ -3,7 +3,8 @@
 SCRIPT_PATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 
 cd "$SCRIPT_PATH/../"
-PYTHON_PATH="./rdfhash.py"
+PYTHON_PATH="./cli.py"
+
 # Use python3.11 if installed.
 if which python3.11 > /dev/null 2>&1; then
     python3.11 $PYTHON_PATH "$@"

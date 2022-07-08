@@ -60,7 +60,8 @@ def get_parser() -> argparse.ArgumentParser:
     )
     subparser = parser.add_subparsers(dest="command")
 
-    # ------------------------------------------------------------------------- #
+    # ____________________________
+    #
     # Default arguments: 'rdfhash'
     # ____________________________
 
@@ -84,9 +85,10 @@ def get_parser() -> argparse.ArgumentParser:
         " their triples. Defaults to all blank node subjects.",
     )
 
-    # ------------------------------------------------------------------------- #
-    # 'reverse' (reverse_hash)
-    # ________________________
+    # ______________________________________
+    #
+    # Sub-command 'reverse' ('reverse_hash')
+    # ______________________________________
 
     parser_reverse = subparser.add_parser(
         "reverse", help="Reverse hashed URIs to blank nodes."
@@ -95,7 +97,7 @@ def get_parser() -> argparse.ArgumentParser:
     add_io_args(parser_reverse)
 
     add_debug_args(parser_reverse)
-
+    
     return parser
 
 

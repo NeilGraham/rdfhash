@@ -3,7 +3,7 @@ from os import path, getcwd
 
 setup(
     name="rdfhash",
-    version="0.2.4",
+    version="0.2.5",
     author="Neil Graham",
     author_email="grahamneiln@gmail.com",
     url="https://github.com/NeilGraham/rdfhash",
@@ -13,7 +13,7 @@ setup(
     long_description_content_type="text/markdown",
     packages=["rdfhash"],
     package_dir={"rdfhash": "package"},
-    entry_points={"console_scripts": ["rdfhash = rdfhash:run"]},
+    entry_points={"console_scripts": ["rdfhash = cli:run"]},
     python_requires=">=3.10",
     install_requires=[
         "pytest >= 7.1.2",
