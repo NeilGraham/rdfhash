@@ -6,7 +6,6 @@ setup(
     version="0.2.3",
     author="Neil Graham",
     author_email="grahamneiln@gmail.com",
-    packages=find_packages(where=".", include=["package*"], exclude=["test"]),
     url="https://github.com/NeilGraham/rdfhash",
     license_files="LICENSE.txt",
     description="Command-line tool for hashing RDF definitions into resolvable identifiers. (Default: sha256)",
