@@ -1,10 +1,14 @@
 # RDF Hash
 
-Command-line tool for hashing RDF definitions into resolvable identifiers ( `sha256`, `md5`, `blake2b`, etc. ).
+Tool for replacing RDF subjects (Default: blank nodes) with hash of their triples (Default: `sha256`).
 
-Selected subjects are replaced with hash of their triples (Default: blank node subjects).
+Set of triples on a given subject are sorted by `{predicate} {object}.\n`, then hashed together. 
 
-Set of triples on a given subject are sorted by `{predicate} {object}.\n`, then hashed together. The hash result replaces the subject URI (Ex: `<md5:fdd61ec7cdbc7241f0289339678dd008>`).
+The hash result replaces the subject URI (Ex: `<md5:fdd61ec7cdbc7241f0289339678dd008>`).
+
+## References
+
+- ### [CLI Reference](docs/cli_reference.md)
 
 ## Setup
 
@@ -16,50 +20,40 @@ Set of triples on a given subject are sorted by `{predicate} {object}.\n`, then 
 
 ### Getting Started
 
-- Install `pip` packages
+- Install `rdfhash` with `pip`
 
     ```bash
     python3.10 -m pip install rdfhash
     ```
 
-- Test script
+- Test CLI
 
     ```bash
-    rdfhash --data="[ a <def:class:Person> ] ." --method=sha1
+    rdfhash --data='[ a <def:class:Person> ] .' --method=sha1
     ```
 
-    ```bash
+    ```
     <sha1:f0392681a6a701d9672925133bf1207f4be9e412> a <def:class:Person> .
     ```
 
-### Command-Line Interface
+- Test Python package
 
-```
-rdfhash [-h] -d DATA [-f {turtle,n-triples,trig,n-quads,n3,rdf}]
-        [-m {md5,sha1,sha224,sha256,sha384,sha512,sha3_224,sha3_256,sha3_384,sha3_512,blake2b,blake2s}]
-        [-a ACCEPT [ACCEPT ...]] [-v] [--debug] [--sparql SPARQL]
+    ```python
+    from rdfhash import rdfhash
 
-Replace selected subjects with hash of their triples (`{predicate} {object}.\n` sorted + joined).
+    input_str = '[ a <def:class:Product> ] .'
+    output_graph = rdfhash(data=input_str, method='md5') # rdflib.Graph
 
-options:
-  -h, --help            show this help message and exit
-  -d DATA, --data DATA  Input data. (RDF)
-  -f {turtle,n-triples,trig,n-quads,n3,rdf}, --format {turtle,n-triples,trig,n-quads,n3,rdf}
-                        Input format.
-  -m {md5,sha1,sha224,sha256,sha384,sha512,sha3_224,sha3_256,sha3_384,sha3_512,blake2b,blake2s}, --method {md5,sha1,sha224,sha256,sha384,sha512,sha3_224,sha3_256,sha3_384,sha3_512,blake2b,blake2s}
-                        Hash method.
-  -a ACCEPT [ACCEPT ...], --accept ACCEPT [ACCEPT ...]
-                        Accept format.
-  -v, --verbose         Show 'info' level logs.
-  --debug               Show 'debug' level logs.
-  --sparql SPARQL, --sparql-select-subjects SPARQL
-                        SPARQL SELECT query returning subject URIs to replace with hash of their triples. Defaults to all
-                        blank node subjects.
-```
+    print(output_graph.serialize(format='ttl'))
+    ```
+
+    ```
+    <md5:eb636daaff999e296289bda9a8747574> a <def:class:Product> .
+    ```
 
 ---
 
-## Example
+## Examples
 
 Test the tool out on the directory `./examples`.
 

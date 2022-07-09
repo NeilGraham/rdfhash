@@ -3,12 +3,12 @@ from os import path, getcwd
 
 setup(
     name="rdfhash",
-    version="0.2.7",
+    version="0.3.0",
     author="Neil Graham",
     author_email="grahamneiln@gmail.com",
     url="https://github.com/NeilGraham/rdfhash",
     license_files="LICENSE.txt",
-    description="Command-line tool for hashing RDF definitions into resolvable identifiers. (Default: sha256)",
+    description="Tool for replacing RDF subjects (Default: blank nodes) with hash of their triples (Default: sha256).",
     long_description=open(path.join(getcwd(), "README.md")).read()
     # Replace local links to 'docs/' to Github page 'docs/'.
     .replace(

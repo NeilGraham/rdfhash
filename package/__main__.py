@@ -101,13 +101,14 @@ def get_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def run():
+def run(args_list: list[str] = None):
     """
     Parse arguments and pass to function 'rdfhash'. Serialize results with
     respect to 'accept' argument.
     """
     # Parse arguments.
-    args_list = sys.argv[1:]
+    if args_list == None:
+        args_list = sys.argv[1:]
     parser = get_parser()
     args = parser.parse_args(["--help"] if len(args_list) == 0 else sys.argv[1:])
 
@@ -134,7 +135,3 @@ def run():
             parser.print_usage()
             print(f"\nERROR: Command is not implemented: {args.command}")
             sys.exit(1)
-
-
-if __name__ == "__main__":
-    run()
