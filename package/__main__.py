@@ -70,8 +70,16 @@ def get_parser() -> argparse.ArgumentParser:
     add_debug_args(parser)
 
     parser.add_argument(
+        "-t",
+        "--template",
+        default="${method}:${value}",
+        help="Template string for hash URI. 'method' corresponds to the hashing method. 'value' corresponds to the hash value.",
+    )
+
+    parser.add_argument(
         "-m",
         "--method",
+        "--hash-method",
         help="Hash method.",
         default="sha256",
         choices=hashlib_methods.keys(),
@@ -124,7 +132,7 @@ def run(args_list: list[str] = None):
 
     match args.command:
         case None:
-            graph = rdfhash(args.data, args.format, args.method, args.sparql)
+            graph = rdfhash(args.data, args.format, args.method, args.template, args.sparql)
             print(graph.serialize(format=args.accept[0]))
             sys.exit(0)
         case "reverse":

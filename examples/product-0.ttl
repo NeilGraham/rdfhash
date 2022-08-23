@@ -2,7 +2,7 @@
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 @prefix c:         <def:class:> .
-@prefix currency:  <def:class:currency> .
+@prefix currency:  <def:class:currency:> .
 @prefix p:         <def:property:> .
 
 @prefix d: <data:> .
