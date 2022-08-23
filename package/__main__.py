@@ -55,8 +55,11 @@ def get_parser() -> argparse.ArgumentParser:
     Returns: argparse.ArgumentParser: _description_
     """
     parser = argparse.ArgumentParser(
-        description="Replace selected subjects with hash of their triples "
-        "(`{predicate} {object}.\\n` sorted + joined).",
+        description=(
+            "Replace selected subjects with hash of their triples "
+            "(`{predicate} {object}.\\n` sorted + joined)."
+        ),
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     subparser = parser.add_subparsers(dest="command")
 
@@ -132,7 +135,9 @@ def run(args_list: list[str] = None):
 
     match args.command:
         case None:
-            graph = rdfhash(args.data, args.format, args.method, args.template, args.sparql)
+            graph = rdfhash(
+                args.data, args.format, args.method, args.template, args.sparql
+            )
             print(graph.serialize(format=args.accept[0]))
             sys.exit(0)
         case "reverse":
