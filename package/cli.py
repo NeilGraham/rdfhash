@@ -2,12 +2,12 @@ import argparse
 import sys
 import logging
 
-from .hash import rdfhash, reverse_hash
+from .hash import hash_subjects, reverse_hash_subjects
 from .logger import logger
 from .helper import hashlib_methods
 
 
-def add_io_args(parser: argparse.ArgumentParser):
+def add_io_args(parser):
     """Adds 'input/output' arguments to given parser/subparser.
     Args: parser (argparse.ArgumentParser): parser/subparser
     """
@@ -32,7 +32,7 @@ def add_io_args(parser: argparse.ArgumentParser):
     )
 
 
-def add_debug_args(parser: argparse.ArgumentParser):
+def add_debug_args(parser):
     """Adds 'debug' arguments to given parser/subparser.
     Args: parser (argparse.ArgumentParser): parser/subparser
     """
@@ -50,8 +50,8 @@ def add_debug_args(parser: argparse.ArgumentParser):
     )
 
 
-def get_parser() -> argparse.ArgumentParser:
-    """Return argument parser for command 'rdfhash'.
+def get_parser():
+    """Return argument parser for command 'hash_subjects'.
     Returns: argparse.ArgumentParser: _description_
     """
     parser = argparse.ArgumentParser(
@@ -65,7 +65,7 @@ def get_parser() -> argparse.ArgumentParser:
 
     # ____________________________
     #
-    # Default arguments: 'rdfhash'
+    # Default arguments: 'hash_subjects'
     # ____________________________
 
     add_io_args(parser)
@@ -98,7 +98,7 @@ def get_parser() -> argparse.ArgumentParser:
 
     # ______________________________________
     #
-    # Sub-command 'reverse' ('reverse_hash')
+    # Sub-command 'reverse' ('reverse_hash_subjects')
     # ______________________________________
 
     parser_reverse = subparser.add_parser(
@@ -112,9 +112,9 @@ def get_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def run(args_list: list[str] = None):
+def cli(args_list = None):
     """
-    Parse arguments and pass to function 'rdfhash'. Serialize results with
+    Parse arguments and pass to function 'hash_subjects'. Serialize results with
     respect to 'accept' argument.
     """
     # Parse arguments.
@@ -133,18 +133,17 @@ def run(args_list: list[str] = None):
     elif args.verbose:
         logger.setLevel(logging.INFO)
 
-    match args.command:
-        case None:
-            graph = rdfhash(
-                args.data, args.format, args.method, args.template, args.sparql
-            )
-            print(graph.serialize(format=args.accept[0]))
-            sys.exit(0)
-        case "reverse":
-            graph = reverse_hash(args.data, args.format)
-            print(graph.serialize(format=args.accept[0]))
-            sys.exit(0)
-        case _:
-            parser.print_usage()
-            print(f"\nERROR: Command is not implemented: {args.command}")
-            sys.exit(1)
+    if args.command == None:
+        graph = hash_subjects(
+            args.data, args.format, args.method, args.template, args.sparql
+        )
+        print(graph.serialize(format=args.accept[0]))
+        sys.exit(0)
+    elif args.command == "reverse":
+        graph = reverse_hash_subjects(args.data, args.format)
+        print(graph.serialize(format=args.accept[0]))
+        sys.exit(0)
+    else:
+        parser.print_usage()
+        print(f"\nERROR: Command is not implemented: {args.command}")
+        sys.exit(1)

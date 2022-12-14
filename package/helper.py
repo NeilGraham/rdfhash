@@ -2,7 +2,7 @@ import hashlib
 from os.path import isfile
 
 from rdflib import Graph
-from rdflib.term import URIRef, Literal, BNode, Variable
+from rdflib.term import URIRef, Literal
 
 
 hashlib_methods = {
@@ -23,7 +23,7 @@ hashlib_methods = {
 }
 
 
-def hash_string(s: str, method="sha256", hashlib_options={}) -> str:
+def hash_string(s, method="sha256", hashlib_options={}):
     """Hash a Python string with a given
 
     Args:
@@ -42,7 +42,7 @@ def hash_string(s: str, method="sha256", hashlib_options={}) -> str:
         raise ValueError(f"Invalid hashing method: {method}")
 
 
-def convert_data_to_graph(data, format: str = None) -> Graph:
+def convert_data_to_graph(data, format = None):
     """Convert data provided to an rdflib.Graph.
 
     Args:
@@ -73,7 +73,7 @@ def convert_data_to_graph(data, format: str = None) -> Graph:
         return graph
 
 
-def rdf_term_to_id(term: URIRef or Literal or BNode or Variable) -> str:
+def rdf_term_to_id(term):
     """Convert rdflib.term to a resolvable identifier. This is useful for hashing.
 
     Args:

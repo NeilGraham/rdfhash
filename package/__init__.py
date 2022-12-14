@@ -1,3 +1,4 @@
-from .hash import rdfhash
-from .hash import reverse_hash
-from .hash import hash_triples
+from .hash import reverse_hash_subjects, hash_subjects, hash_subject
+
+# Default function 'rdfhash' uses function 'hash_subjects'.
+rdfhash = hash_subjects

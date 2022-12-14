@@ -1,22 +1,21 @@
 from string import Template
 
-from rdflib import Graph
 from rdflib.term import URIRef, BNode
 
 from .helper import hash_string, convert_data_to_graph, rdf_term_to_id, hashlib_methods
 from .logger import logger
 
 
-def rdfhash(
+def hash_subjects(
     data,
-    format: str = None,
-    method: str = "sha256",
-    template: str = "${method}:${value}",
+    format = None,
+    method = "sha256",
+    template = "${method}:${value}",
     sparql_select_subjects=(
-        "SELECT DISTINCT ?s WHERE { ?s ?p ?o . FILTER (isBlank(?s)) }"
+        "SELECT DISTINCT ?s { ?s ?p ?o . FILTER (isBlank(?s)) }"
     ),
-) -> Graph:
-    """Hash RDF blank node subjects with sum of their triples.
+):
+    """Hash subjects by the sum of their triples.
 
     Subject hash result is calculated by sorting each triple by
     `{subject} {predicate}.` then joining with `\n`.
@@ -33,7 +32,7 @@ def rdfhash(
         Hash Output: `<md5:840c3957b27ad45bbfaf3565a46b0d0b>`
 
     Args:
-        data (_type_): Data representing RDF triples.
+        data (str|rdflib.Graph): Data representing RDF triples.
         format (str, optional): Format of data. Defaults to None.
         method (str, optional): Hashing method to use. Defaults to "sha256".
         template (str, optional): Template string for hash URI.
@@ -42,14 +41,14 @@ def rdfhash(
             list of subjects which will have their triples hashed.
 
     Returns:
-        Graph: Updated 'data' graph.
+        rdflib.Graph: Updated 'data' graph.
     """
     # Convert template string to 'Template' class.
     if type(template) != Template:
         template = Template(template)
 
     # Convert data provided to rdflib.Graph.
-    graph: Graph = convert_data_to_graph(data, format)
+    graph = convert_data_to_graph(data, format)
     len_before = len(graph)
 
     # Use SPARQL query 'sparql_select_subject' to get list of subjects to hash.
@@ -68,7 +67,7 @@ def rdfhash(
             logger.debug("Subject was already replaced or is N/A: " + s.n3())
             continue
 
-        hashed_values.update(hash_triples(graph, s, method, template, select_subjects))
+        hashed_values.update(hash_subject(graph, s, method, template, select_subjects))
 
     logger.info(
         f"\n({len(hashed_values)}) Hashed subjects:\n-- "
@@ -86,26 +85,29 @@ def rdfhash(
     return graph
 
 
-def hash_triples(
-    graph: Graph,
-    subject: URIRef or BNode,
+def hash_subject(
+    graph,
+    subject,
     method="sha256",
-    template: str = "${method}:${value}",
-    also_subjects: set = None,
-    circ_deps: set = None,
+    template = "${method}:${value}",
+    also_subjects = None,
+    circ_deps = None,
 ):
     """Replaces subject in graph with hash of it's triples.
 
     If encounters a blank node in the object position, recursively hashes it.
+    
+    Updates 'graph' rdflib.Graph but does not return anything.
 
     Args:
-        graph (Graph): rdflib.Graph.
+        graph (rdflib.Graph): rdflib.Graph.
         subject (_type_): rdflib.term representing a subject.
         method (str, optional): Hashing method to use. Defaults to "sha256".
         template (str, optional): Template string for hash URI.
             Defaults to "{method}:{value}".
         also_subjects (set, optional) If encounters any of these terms in triples,
-            recursively resolves them. Defaults to None.
+            recursively resolves them. Throws error if circular dependency found. 
+            Defaults to None.
         circ_deps (set, optional): Set of values which 'subject' cannot be.
             Defaults to None.
 
@@ -163,7 +165,7 @@ def hash_triples(
                 # ---------------
                 # Resolve hash value of nested triples first.
                 hashed_values.update(
-                    hash_triples(
+                    hash_subject(
                         graph, term, method, template, also_subjects, circ_deps
                     )
                 )
@@ -192,25 +194,25 @@ def hash_triples(
 
     # Concatenate sorted list, hash with method, then add to a URIRef.
     hash_dict = {"method": method, "value": hash_string(hash_value, method)}
-    hash_subject = URIRef(template.substitute(**hash_dict))
+    hash_subj = URIRef(template.substitute(**hash_dict))
 
-    logger.debug(f"Result of hashed triples: {hash_subject.n3()}")
+    logger.debug(f"Result of hashed triples: {hash_subj.n3()}")
 
     # Add triples to graph with hashed subject.
     for pred_obj in triples_add:
-        graph.add((hash_subject, *pred_obj))
+        graph.add((hash_subj, *pred_obj))
 
     # Replace instances of current subject in the object position.
     for triple in graph.triples((None, None, subject)):
         graph.remove(triple)
-        graph.add((triple[0], triple[1], hash_subject))
+        graph.add((triple[0], triple[1], hash_subj))
 
     # Add hashed subject to 'hashed_values' and return.
-    hashed_values[subject] = hash_subject
+    hashed_values[subject] = hash_subj
     return hashed_values
 
 
-def reverse_hash(data, format: str = None) -> Graph:
+def reverse_hash_subjects(data, format = None):
     """Convert hashed URIs to blank nodes.
 
     Args:
@@ -218,13 +220,13 @@ def reverse_hash(data, format: str = None) -> Graph:
         format (str, optional): Format of data. Defaults to None.
 
     Returns:
-        Graph: Updated 'data' graph.
+        rdflib.Graph: Updated 'data' graph.
     """
     bnode_int = 0
     bnode_dict = {}
 
     # Convert data provided to rdflib.Graph.
-    graph: Graph = convert_data_to_graph(data, format)
+    graph = convert_data_to_graph(data, format)
 
     # Check every term in graph.
     for triple in graph:

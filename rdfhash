@@ -1,0 +1,5 @@
+#!/bin/python3
+
+from package.cli import cli
+
+cli()
