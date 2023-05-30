@@ -23,5 +23,7 @@ setup(
     install_requires=[
         "pytest >= 7.1.2",
         "rdflib >= 6.1.1",
+        "oxrdflib >= 0.3.4",
+        "pyoxigraph >= 0.8.0",
     ],
 )

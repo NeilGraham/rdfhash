@@ -2,9 +2,10 @@ import argparse
 import sys
 import logging
 
-from .hash import hash_subjects, reverse_hash_subjects
+from .main import hash_subjects, reverse_hash_subjects
 from .logger import logger
-from .helper import hashlib_methods
+from .utils.hash import hashlib_methods
+from .utils.graph import graph_types, mime, file_ext
 
 
 def add_io_args(parser):
@@ -12,23 +13,30 @@ def add_io_args(parser):
     Args: parser (argparse.ArgumentParser): parser/subparser
     """
     parser.add_argument(
-        "-d", "--data", help="Input RDF string or file. (.ttl, .nt, .n3)"
+        "-d",
+        "--data",
+        help="Input RDF string or file path. Supported file formats are '.nt', '.nq', '.ttl', '.trig', '.n3', '.xml', '.rdf'.",
     )
 
     parser.add_argument(
         "-f",
         "--format",
-        help="Input format.",
-        default=None,
-        choices=["turtle", "n-triples", "trig", "n-quads", "n3", "rdf"],
+        help="Input format. Supports 'turtle', 'ntriples', 'nquads', 'xml', 'n3'.",
+        default="text/turtle",
+    )
+
+    parser.add_argument(
+        "-g",
+        "--graph",
+        default="oxrdflib",
+        help="Graph library to use. Supports 'oxrdflib', 'rdflib', 'oxigraph'.",
     )
 
     parser.add_argument(
         "-a",
         "--accept",
-        help="Output accept format.",
-        default=["turtle"],
-        nargs="+",
+        help="Output accept format. Supports 'turtle', 'ntriples', 'nquads', 'xml', 'n3'.",
+        default="text/turtle",
     )
 
 
@@ -75,7 +83,7 @@ def get_parser():
     parser.add_argument(
         "-t",
         "--template",
-        default="${method}:${value}",
+        default="{method}:{value}",
         help="Template string for hash URI. 'method' corresponds to the hashing method. 'value' corresponds to the hash value.",
     )
 
@@ -83,9 +91,8 @@ def get_parser():
         "-m",
         "--method",
         "--hash-method",
-        help="Hash method.",
+        help="Hash method. Supports '" + "', '".join(hashlib_methods.keys()) + "'.",
         default="sha256",
-        choices=hashlib_methods.keys(),
     )
 
     parser.add_argument(
@@ -112,7 +119,7 @@ def get_parser():
     return parser
 
 
-def cli(args_list = None):
+def cli(args_list=None):
     """
     Parse arguments and pass to function 'hash_subjects'. Serialize results with
     respect to 'accept' argument.
@@ -122,6 +129,24 @@ def cli(args_list = None):
         args_list = sys.argv[1:]
     parser = get_parser()
     args = parser.parse_args(["--help"] if len(args_list) == 0 else sys.argv[1:])
+
+    if args.format in mime:
+        args.format = mime[args.format]
+    elif args.format in file_ext:
+        args.format = file_ext[args.format]
+    elif args.format not in mime.values():
+        parser.print_usage()
+        print(f"\nERROR: Unsupported format: {args.format}")
+        sys.exit(1)
+
+    if args.accept in mime:
+        args.accept = mime[args.accept]
+    elif args.accept in file_ext:
+        args.accept = file_ext[args.accept]
+    elif args.accept not in mime.values():
+        parser.print_usage()
+        print(f"\nERROR: Unsupported accept format: {args.accept}")
+        sys.exit(1)
 
     if args.data == None:
         parser.print_usage()
@@ -135,13 +160,13 @@ def cli(args_list = None):
 
     if args.command == None:
         graph = hash_subjects(
-            args.data, args.format, args.method, args.template, args.sparql
+            args.data, args.format, args.method, args.template, args.sparql, args.graph
         )
-        print(graph.serialize(format=args.accept[0]))
+        print(graph.serialize(format=args.accept))
         sys.exit(0)
     elif args.command == "reverse":
-        graph = reverse_hash_subjects(args.data, args.format)
-        print(graph.serialize(format=args.accept[0]))
+        graph = reverse_hash_subjects(args.data, args.format, args.graph)
+        print(graph.serialize(format=args.accept))
         sys.exit(0)
     else:
         parser.print_usage()

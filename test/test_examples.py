@@ -1,121 +1,93 @@
 from os import getcwd, path, listdir
 from pathlib import Path
+from glob import glob
 
 from rdflib import Graph
 import pytest
+import oxrdflib
 
-from package.hash import rdfhash
+from package import rdfhash
 from package.logger import logger
+from package.utils.graph import graph_types
+from package.utils import compare_graphs, graph_differences
 
-hash_methods = ["sha256"]
+repo_dir = path.dirname(Path(__file__).parent.absolute())
+ttl_files = (
+    path.relpath(file) for file in glob(path.join(repo_dir, "examples", "*.ttl"))
+)
 
-script_path = Path(__file__).parent.absolute()
-examples_path = path.join(script_path, "..", "examples")
 
-
-def test__hash_examples(force_write=False):
-    """Test hashing files in './examples'.
+@pytest.mark.parametrize("file_path", ttl_files)
+@pytest.mark.parametrize("hash_method", ["sha256"])
+# @pytest.mark.parametrize("graph_type", ["oxrdflib"])
+@pytest.mark.parametrize("graph_type", list(graph_types.keys()))
+def test__hash_examples(file_path, hash_method, graph_type, force_write=False):
+    """Hash file and compare against hash file.
 
     Args:
+        graph_type (str): Graph type to use.
         force_write (bool, optional): If True, forces writing hash
             result to file './examples/hashed'. Defaults to True.
     """
-    # Get list of all items (files+directories) in './examples'.
-    test_files = set(Path(v).name for v in listdir(examples_path))
 
-    results = {"not_found": [], "successful": [], "failed": [], "wrote": []}
+    success = False
+    hash_file_path = path.join(
+        path.dirname(file_path),
+        "hashed",
+        f"{path.splitext(path.basename(file_path))[0]}__{hash_method}.ttl",
+    )
 
-    # Test each file in './examples'.
-    # -------------------------------
+    # Generate hash of blank nodes in example file.
+    graph = rdfhash(file_path, method=hash_method, graph_type=graph_type)
 
-    # Iterate over each file in './examples'.
-    for file in test_files:
-        file_path = path.join(getcwd(), "examples", file)
+    graph_actual = (
+        None
+        if not path.isfile(hash_file_path)
+        else Graph(store="Oxigraph").parse(hash_file_path)
+    )
+    graph_compare = Graph(store="Oxigraph").parse(
+        data=graph.serialize(format="text/turtle"), format="text/turtle"
+    )
 
-        # If is not a file, skip.
-        if not path.isfile(file_path):
-            continue
+    # If hash file does not exist, continue.
+    if graph_actual == None:
+        logger.warning(f"Cannot find hash file at path: {hash_file_path}")
 
-        # Iterate over hash methods defined above.
-        for method in hash_methods:
-            hash_file_path = path.join(
-                getcwd(),
-                "examples",
-                "hashed",
-                f"{path.splitext(file)[0]}__{method}.ttl",
-            )
-
-            # Generate hash of blank nodes in example file.
-            graph = rdfhash(file_path, method=method)
-
-            graph_actual = (
-                None
-                if not path.isfile(hash_file_path)
-                else Graph().parse(hash_file_path)
-            )
-
-            # If hash file does not exist, continue.
-            if graph_actual == None:
-                logger.warning(f"Cannot find hash file at path: {hash_file_path}")
-                results["not_found"].append(hash_file_path)
-
-            # Check to see that both graphs are the exact same.
-            elif graph.isomorphic(graph_actual):
-                logger.info(
-                    "Successfully verified hash against file: "
-                    f"'{file}' <-> '{hash_file_path}' ({method})"
-                )
-                results["successful"].append(file_path)
-
-            # If the hash is not correct, append to 'failed' and continue.
-            else:
-                logger.error(
-                    "Mismatch between calculated hash and file: "
-                    f"'{file}' -> '{hash_file_path}' ({method}) "
-                )
-                results["failed"].append(file_path)
-
-            # Write output of function to file path if 'force_write' is True.
-            if force_write:
-                logger.warning(f"Forcing write to file path: {hash_file_path}")
-                graph.serialize(hash_file_path)
-                results["wrote"].append(hash_file_path)
-
-    # Output results of test.
-    # -----------------------
-
-    # Log warning if any expected files were not found.
-    if len(results["not_found"]) > 0:
-        logger.warning(
-            f"\n\n({len(results['not_found'])}) Could not find corresponding hash "
-            "files:\n-- " + "\n-- ".join(results["not_found"])
-        )
-
-    # Print successfully verified files.
-    if len(results["successful"]) > 0:
-
-        # Log final success message.
+    # Check to see that both graphs are the exact same.
+    elif compare_graphs(graph_compare, graph_actual):
         logger.info(
-            f"\n({len(results['successful'])}) Successfully verified hash methods "
-            "against example files:\n-- " + "\n-- ".join(results["successful"])
+            "Successfully verified hash against file: "
+            f"'{file_path}' <-> '{hash_file_path}' ({hash_method})"
         )
+        success = True
+
+    # If the hash is not correct, append to 'failed' and continue.
     else:
-        # No files were verified.
-        logger.info("No files were verified.")
-
-    if len(results["wrote"]) > 0:
-        logger.info(
-            f"\n({len(results['wrote'])}) The following files were written to: \n-- "
-            + "\n-- ".join(results["wrote"])
+        logger.error(
+            "Mismatch between calculated hash and file: "
+            f"'{file_path}' -> '{hash_file_path}' ({hash_method}) "
         )
 
-    # Fail test if any files failed.
-    if len(results["failed"]) > 0:
-        pytest.fail(
-            f"\n({len(results['failed'])}) The following files failed the hash test: \n-- "
-            + "\n-- ".join(results["failed"])
-        )
+    # Write output of function to file path if 'force_write' is True.
+    if force_write:
+        logger.warning(f"Forcing write to file path: {hash_file_path}")
+        graph.serialize(hash_file_path, format="text/turtle")
 
+    if not success:
+        differences = graph_differences(graph_compare, graph_actual)
+        diff_s = ""
 
-# def test__reverse_hash():
-#     test_files = listdir(examples_path)
+        if len(differences["in_g1_not_g2"]) > 0:
+            diff_s += "Test File Only:\n"
+            for triple in differences["in_g1_not_g2"]:
+                diff_s += differences["in_g1_not_g2"].serialize(format="turtle")
+            diff_s += "\n\n"
+
+        if len(differences["in_g2_not_g1"]) > 0:
+            diff_s += "Reference File Only:\n"
+            diff_s += differences["in_g2_not_g1"].serialize(format="turtle")
+            diff_s += "\n\n"
+
+        logger.error(diff_s)
+
+        pytest.fail(f"Hash mismatch for file: {file_path} ({hash_method})\n\n{diff_s}")
