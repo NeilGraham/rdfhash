@@ -9,7 +9,7 @@ import oxrdflib
 from package import rdfhash
 from package.logger import logger
 from package.utils.graph import graph_types
-from package.utils import compare_graphs, graph_differences
+from utils import compare_graphs, graph_differences
 
 repo_dir = path.dirname(Path(__file__).parent.absolute())
 ttl_files = (

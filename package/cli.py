@@ -5,7 +5,7 @@ import logging
 from .main import hash_subjects, reverse_hash_subjects
 from .logger import logger
 from .utils.hash import hashlib_methods
-from .utils.graph import graph_types, mime, file_ext
+from .utils.graph import mime, file_ext
 
 
 def add_io_args(parser):

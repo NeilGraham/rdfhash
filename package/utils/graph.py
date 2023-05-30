@@ -322,7 +322,7 @@ class OxiGraph(__Graph__):
         ):
             if term.language != None:
                 return f'"{term.value}"^^{term.datatype}@{term.language}'
-            return f"{term.value}^^{term.datatype}"
+            return f'"{term.value}"^^{term.datatype}'
         return str(term)
 
     def add(self, quad):

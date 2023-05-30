@@ -1,7 +1,3 @@
-from string import Template
-
-from oxrdflib import URIRef, BNode
-
 from .utils.hash import hash_string, hashlib_methods
 from .utils.graph import get_graph
 from .logger import logger
@@ -39,7 +35,7 @@ def hash_subjects(
             Defaults to "{method}:{value}".
         sparql_select_subject (str, optional): SPARQL SELECT query to return
             list of subjects which will have their triples hashed.
-        graph_type (str, optional): Graph type to use. Defaults to "oxigraph".
+        graph_type (str, optional): Graph type to use. Defaults to "oxrdflib".
 
     Returns:
         rdflib.Graph: Updated 'data' graph.
