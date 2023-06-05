@@ -237,10 +237,10 @@ class OxRdfLibGraph(RdfLibGraph):
     library_class = oxrdflib
     graph_class = oxrdflib.Graph
 
-    NamedNode = oxrdflib.URIRef
-    BlankNode = oxrdflib.BNode
-    Literal = oxrdflib.Literal
-    Variable = oxrdflib.Variable
+    NamedNode = rdflib.URIRef
+    BlankNode = rdflib.BNode
+    Literal = rdflib.Literal
+    Variable = rdflib.Variable
 
     default_format = mime["trig"]
 
@@ -350,7 +350,9 @@ graph_classes = {
 def get_graph(data=None, format="trig", graph_type="oxrdflib", max_path=2048):
     type_data = type(data)
 
-    if type_data in graph_classes:
+    if issubclass(type_data, __Graph__):
+        return data
+    elif type_data in graph_classes:
         return graph_classes[type_data](data, format)
     elif graph_type in graph_types:
         return graph_types[graph_type](data, format, max_path)

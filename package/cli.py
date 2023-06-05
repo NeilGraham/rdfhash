@@ -8,13 +8,21 @@ from .utils.hash import hashlib_methods
 from .utils.graph import mime, file_ext
 
 
-def add_io_args(parser):
-    """Adds 'input/output' arguments to given parser/subparser.
-    Args: parser (argparse.ArgumentParser): parser/subparser
+def get_parser():
+    """Return argument parser for command 'hash_subjects'.
+    Returns: argparse.ArgumentParser: _description_
     """
+    parser = argparse.ArgumentParser(
+        description=(
+            "Replace selected subjects with hash of their triples "
+            "(`{predicate} {object}.\\n` sorted & joined)."
+        ),
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+
     parser.add_argument(
-        "-d",
-        "--data",
+        "data",
+        nargs="+",
         help="Input RDF string or file path. Supported file formats are '.nt', '.nq', '.ttl', '.trig', '.n3', '.xml', '.rdf'.",
     )
 
@@ -35,67 +43,27 @@ def add_io_args(parser):
     parser.add_argument(
         "-a",
         "--accept",
-        help="Output accept format. Supports 'turtle', 'ntriples', 'nquads', 'xml', 'n3'.",
         default="text/turtle",
+        help="Output accept format. Supports 'turtle', 'ntriples', 'nquads', 'xml', 'n3'.",
     )
-
-
-def add_debug_args(parser):
-    """Adds 'debug' arguments to given parser/subparser.
-    Args: parser (argparse.ArgumentParser): parser/subparser
-    """
-    parser.add_argument(
-        "-v",
-        "--verbose",
-        help="Show 'info' level logs.",
-        action="store_true",
-    )
-
-    parser.add_argument(
-        "--debug",
-        help="Show 'debug' level logs.",
-        action="store_true",
-    )
-
-
-def get_parser():
-    """Return argument parser for command 'hash_subjects'.
-    Returns: argparse.ArgumentParser: _description_
-    """
-    parser = argparse.ArgumentParser(
-        description=(
-            "Replace selected subjects with hash of their triples "
-            "(`{predicate} {object}.\\n` sorted + joined)."
-        ),
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-    )
-    subparser = parser.add_subparsers(dest="command")
-
-    # ____________________________
-    #
-    # Default arguments: 'hash_subjects'
-    # ____________________________
-
-    add_io_args(parser)
-
-    add_debug_args(parser)
 
     parser.add_argument(
         "-t",
         "--template",
         default="{method}:{value}",
-        help="Template string for hash URI. 'method' corresponds to the hashing method. 'value' corresponds to the hash value.",
+        help="Hash URI template. '{method}' corresponds to the hashing method (eg. 'sha256'). '{value}' corresponds to the calculated hash value.",
     )
 
     parser.add_argument(
         "-m",
         "--method",
         "--hash-method",
-        help="Hash method. Supports '" + "', '".join(hashlib_methods.keys()) + "'.",
         default="sha256",
+        help="Hash method. Supports '" + "', '".join(hashlib_methods.keys()) + "'.",
     )
 
     parser.add_argument(
+        "-s",
         "--sparql",
         "--sparql-select-subjects",
         default="SELECT DISTINCT ?s WHERE { ?s ?p ?o . FILTER (isBlank(?s)) }",
@@ -103,18 +71,25 @@ def get_parser():
         " their triples. Defaults to all blank node subjects.",
     )
 
-    # ______________________________________
-    #
-    # Sub-command 'reverse' ('reverse_hash_subjects')
-    # ______________________________________
-
-    parser_reverse = subparser.add_parser(
-        "reverse", help="Reverse hashed URIs to blank nodes."
+    parser.add_argument(
+        "-r",
+        "--reverse",
+        action="store_true",
+        help="Reverse hashed URIs to Blank Nodes. --template is used to identify hashed URI te",
     )
 
-    add_io_args(parser_reverse)
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        help="Show 'info' level logs.",
+    )
 
-    add_debug_args(parser_reverse)
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Show 'debug' level logs.",
+    )
 
     return parser
 
@@ -158,17 +133,11 @@ def cli(args_list=None):
     elif args.verbose:
         logger.setLevel(logging.INFO)
 
-    if args.command == None:
-        graph = hash_subjects(
-            args.data, args.format, args.method, args.template, args.sparql, args.graph
-        )
-        print(graph.serialize(format=args.accept))
-        sys.exit(0)
-    elif args.command == "reverse":
-        graph = reverse_hash_subjects(args.data, args.format, args.graph)
-        print(graph.serialize(format=args.accept))
-        sys.exit(0)
-    else:
-        parser.print_usage()
-        print(f"\nERROR: Command is not implemented: {args.command}")
-        sys.exit(1)
+    graph, hashed_values = hash_subjects(
+        args.data, args.format, args.method, args.template, args.sparql, args.graph
+    )
+
+    if args.reverse:
+        reverse_hash_subjects(graph, args.format, args.template, args.graph)
+
+    print(graph.serialize(format=args.accept))

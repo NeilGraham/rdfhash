@@ -6,8 +6,13 @@ from rdflib import Graph
 import pytest
 import oxrdflib
 
-from package import rdfhash
+from package import rdfhash, reverse_hash_subjects
 from package.logger import logger
+from package.utils.hash import (
+    hash_types,
+    hash_types_requiring_length,
+    hash_types_resolvable,
+)
 from package.utils.graph import graph_types
 from utils import compare_graphs, graph_differences
 
@@ -16,10 +21,15 @@ ttl_files = (
     path.relpath(file) for file in glob(path.join(repo_dir, "examples", "*.ttl"))
 )
 
+resolvable_hash_methods = list(hash_types_resolvable.copy())
+for i in range(0, len(resolvable_hash_methods)):
+    if resolvable_hash_methods[i] in hash_types_requiring_length:
+        resolvable_hash_methods[i] = resolvable_hash_methods[i] + ":64"
+
 
 @pytest.mark.parametrize("file_path", ttl_files)
+# @pytest.mark.parametrize("hash_method", resolvable_hash_methods)
 @pytest.mark.parametrize("hash_method", ["sha256"])
-# @pytest.mark.parametrize("graph_type", ["oxrdflib"])
 @pytest.mark.parametrize("graph_type", list(graph_types.keys()))
 def test__hash_examples(file_path, hash_method, graph_type, force_write=False):
     """Hash file and compare against hash file.
@@ -38,23 +48,29 @@ def test__hash_examples(file_path, hash_method, graph_type, force_write=False):
     )
 
     # Generate hash of blank nodes in example file.
-    graph = rdfhash(file_path, method=hash_method, graph_type=graph_type)
+    graph, replaced_subjects = rdfhash(
+        file_path, method=hash_method, graph_type=graph_type
+    )
 
     graph_actual = (
         None
         if not path.isfile(hash_file_path)
         else Graph(store="Oxigraph").parse(hash_file_path)
     )
-    graph_compare = Graph(store="Oxigraph").parse(
+    graph_generated = Graph(store="Oxigraph").parse(
         data=graph.serialize(format="text/turtle"), format="text/turtle"
     )
 
     # If hash file does not exist, continue.
     if graph_actual == None:
-        logger.warning(f"Cannot find hash file at path: {hash_file_path}")
+        logger.warning(
+            f"Cannot find hash file at path, writing to path: {hash_file_path}"
+        )
+        graph_generated.serialize(hash_file_path, format="text/turtle")
+        return
 
     # Check to see that both graphs are the exact same.
-    elif compare_graphs(graph_compare, graph_actual):
+    elif compare_graphs(graph_generated, graph_actual):
         logger.info(
             "Successfully verified hash against file: "
             f"'{file_path}' <-> '{hash_file_path}' ({hash_method})"
@@ -74,7 +90,7 @@ def test__hash_examples(file_path, hash_method, graph_type, force_write=False):
         graph.serialize(hash_file_path, format="text/turtle")
 
     if not success:
-        differences = graph_differences(graph_compare, graph_actual)
+        differences = graph_differences(graph_generated, graph_actual)
         diff_s = ""
 
         if len(differences["in_g1_not_g2"]) > 0:
@@ -91,3 +107,7 @@ def test__hash_examples(file_path, hash_method, graph_type, force_write=False):
         logger.error(diff_s)
 
         pytest.fail(f"Hash mismatch for file: {file_path} ({hash_method})\n\n{diff_s}")
+
+
+# def test__reverse_example(file_path, template="{method}:{value}"):
+#     graph_generated = reverse_hash_subjects(file_path, )

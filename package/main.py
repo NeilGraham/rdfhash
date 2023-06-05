@@ -1,5 +1,6 @@
 from .utils.hash import hash_string, hashlib_methods
 from .utils.graph import get_graph
+from .utils import validate_uri
 from .logger import logger
 
 
@@ -10,6 +11,7 @@ def hash_subjects(
     template="{method}:{value}",
     sparql_select_subjects=("SELECT DISTINCT ?s { ?s ?p ?o . FILTER (isBlank(?s)) }"),
     graph_type="oxrdflib",
+    length=None,
 ):
     """Hash subjects by the sum of their triples.
 
@@ -36,6 +38,8 @@ def hash_subjects(
         sparql_select_subject (str, optional): SPARQL SELECT query to return
             list of subjects which will have their triples hashed.
         graph_type (str, optional): Graph type to use. Defaults to "oxrdflib".
+        length (int, optional): Length of hash result. Required for some hash methods,
+            optional for all.
 
     Returns:
         rdflib.Graph: Updated 'data' graph.
@@ -46,7 +50,10 @@ def hash_subjects(
     len_before = len(graph)
 
     # Use SPARQL query 'sparql_select_subject' to get list of subjects to hash.
-    select_subjects = set([r[0] for r in graph.query(sparql_select_subjects)])
+    select_subjects = set()
+    for row in graph.query(sparql_select_subjects):
+        for item in row:
+            select_subjects.add(item)
 
     logger.info(
         f"\n({len(select_subjects)}) Hashing subject triples:\n-- "
@@ -55,15 +62,32 @@ def hash_subjects(
 
     hashed_values = {}  # Dictionary of subjects and resolved hash values.
 
+    spec_length = None
+    if ":" in method:
+        method, spec_length = method.split(":")
+        spec_length = int(spec_length)
+
     for s in select_subjects:
+        if s in hashed_values:
+            continue
+
         # Continue if subject is already replaced or N/A.
         if (s, None, None) not in graph:
-            logger.debug(
-                "Subject was already replaced or is N/A: " + graph.term_to_string(s)
+            logger.warning(
+                "Selected subject not found in graph: " + graph.term_to_string(s)
             )
             continue
 
-        hashed_values.update(hash_subject(graph, s, method, template, select_subjects))
+        hashed_values.update(
+            hash_subject(
+                graph,
+                s,
+                method,
+                template,
+                select_subjects,
+                length=length or spec_length,
+            )
+        )
 
     logger.info(
         f"\n({len(hashed_values)}) Hashed subjects:\n-- "
@@ -81,7 +105,7 @@ def hash_subjects(
             f"(-{len_before-len_after}) Graph size reduced from {len_before} to {len_after}."
         )
 
-    return graph
+    return graph, hashed_values
 
 
 def hash_subject(
@@ -91,6 +115,7 @@ def hash_subject(
     template="{method}:{value}",
     also_subjects=None,
     circ_deps=None,
+    length=None,
 ):
     """Replaces subject in graph with hash of it's triples.
 
@@ -109,6 +134,8 @@ def hash_subject(
             Defaults to None.
         circ_deps (set, optional): Set of values which 'subject' cannot be.
             Defaults to None.
+        length (int, optional): Length of hash result. Required for some hash methods,
+            optional for all.
 
     Raises:
         ValueError: If blank node in predicate position of any triples.
@@ -130,7 +157,7 @@ def hash_subject(
     # Add current subject to circular dependencies.
     circ_deps.add(subject)
 
-    hash_value_list = []  # List of values to hash. (`${predicate} ${object}.`)
+    hash_input_list = []  # List of values to hash. (`${predicate} ${object}.`)
     triples_add = []  # List of triples to replace with hashed subject.
 
     # Get all triples containing subject.
@@ -167,7 +194,7 @@ def hash_subject(
                 # Resolve hash value of nested triples first.
                 hashed_values.update(
                     hash_subject(
-                        graph, term, method, template, also_subjects, circ_deps
+                        graph, term, method, template, also_subjects, circ_deps, length
                     )
                 )
                 triple_new.append(hashed_values[term])
@@ -178,7 +205,7 @@ def hash_subject(
         triples_add.append(triple_new)
 
         # Append `{predicate} {object}.\n` to list of values to hash.
-        hash_value_list.append(
+        hash_input_list.append(
             f"{graph.term_to_string(triple_new[0], expand_xsd_string=True)} {graph.term_to_string(triple_new[1], expand_xsd_string=True)}.\n"
         )
 
@@ -186,15 +213,16 @@ def hash_subject(
     # ---------------------------------------------------------
 
     # Sort list of strings: `{predicate} {object}.\n`
-    hash_value_list.sort()
+    hash_input_list.sort()
 
     # Join list of strings to be hashed.
-    hash_value = "".join(hash_value_list)
+    hash_input = "".join(hash_input_list)
+    print(f"'{hash_input}'")
 
-    logger.debug(f'({len(hash_value_list)}) Hashing triple set: """{hash_value}"""')
+    logger.debug(f'({len(hash_input_list)}) Hashing triple set: """{hash_input}"""')
 
     # Concatenate sorted list, hash with method, then add to a URIRef.
-    hash_dict = {"method": method, "value": hash_string(hash_value, method)}
+    hash_dict = {"method": method, "value": hash_string(hash_input, method, length)}
     hash_subj = graph.NamedNode(template.format(**hash_dict))
 
     logger.debug(f"Result of hashed triples: {graph.term_to_string(hash_subj)}")
@@ -213,7 +241,9 @@ def hash_subject(
     return hashed_values
 
 
-def reverse_hash_subjects(data, format=None, graph_type="oxrdflib"):
+def reverse_hash_subjects(
+    data, format=None, template="{method}:{value}", graph_type="oxrdflib"
+):
     """Convert hashed URIs to blank nodes.
 
     Args:
@@ -226,27 +256,20 @@ def reverse_hash_subjects(data, format=None, graph_type="oxrdflib"):
     bnode_int = 0
     bnode_dict = {}
 
-    # Convert data provided to rdflib.Graph.
     graph = get_graph(data, format, graph_type)
 
     # Check every term in graph.
-    for triple in graph:
+    for triple in graph.triples():
         new_triple = []  # Replaces 'triple'.
         updated = False  # Tracks whether 'new_triple' is different to 'triple'.
 
         for term in triple:
-            # Skip update if starts with 'http' (most common case).
-            # No hash method is expected to start with this string.
-            if term.startswith("http"):
-                new_triple.append(term)
-            # If URI is already replaced, use replacement.
-            elif term in bnode_dict:
+            if term in bnode_dict:
                 updated = True
                 new_triple.append(bnode_dict[term])
-            # Check to see if term starts with any of the possible hash methods.
-            elif any(
-                term.startswith(hash_string + ":")
-                for hash_string in hashlib_methods.keys()
+            # If term matches 'template' regex, replace with blank node.
+            elif graph.is_uri(term) and validate_uri(
+                graph.term_to_string(term)[1:-1], template
             ):
                 updated = True
                 bnode = graph.BlankNode(bnode_int)
