@@ -4,6 +4,6 @@ from os.path import join, dirname, normpath
 
 sys.path.append(join(dirname(normpath(__file__)), ".."))
 
-from package.logger import logger
+from rdfhash.logger import logger
 
 logger.setLevel(logging.DEBUG)

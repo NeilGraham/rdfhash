@@ -1,0 +1,89 @@
+@prefix : <http://rdfhash.com/> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix chebi: <http://purl.obolibrary.org/obo/> .
+
+:Experiment1
+    a :Experiment ;
+    :has-hypothesis _:Hypothesis1 ;
+    :has-observation _:Observation1, _:Observation2, _:Observation3 .
+
+:Sample1
+  a :Sample ;
+  :composed-of [
+    a :Composition ;
+    :substance chebi:CHEBI_16240 ; # Hydrogen Peroxide (H202)
+    :percent "100"^^xsd:int ; # 100%
+  ] .
+
+_:Hypothesis1
+    a :Hypothesis ;
+    skos:definition "If the temperature is increased while the pressure is held constant, the rate of decomposition of 100% Hydrogen Peroxide (H2O2) will increase."@en .
+
+_:Observation1
+    a :Observation ;
+    :on-sample :Sample1 ;
+    :has-characteristic-value [
+        a :CharacteristicValue ;
+        :is-value-for :Temperature ;
+        :value "40"^^xsd:int ;
+        qudt:unit qudt:DegreeCelsius ;
+    ], 
+    [
+        a :CharacteristicValue ;
+        :is-value-for :Pressure ;
+        :value "100000"^^xsd:int ;
+        qudt:unit qudt:Pascal ;
+    ],
+    [
+        a :CharacteristicValue ;
+        :is-value-for :Decomposition-Rate ;
+        :value "0.01"^^xsd:decimal ;
+        qudt:unit qudt:SecondTimeInverse ;
+    ] .
+
+_:Observation2
+    a :Observation ;
+    :on-sample :Sample1 ;
+    :has-characteristic-value [
+        a :CharacteristicValue ;
+        :is-value-for :Temperature ;
+        :value "60"^^xsd:int ;
+        qudt:unit qudt:DegreeCelsius ;
+    ],
+    [
+        a :CharacteristicValue ;
+        :is-value-for :Pressure ;
+        :value "100000"^^xsd:int ;
+        qudt:unit qudt:Pascal ;
+    ],
+    [
+        a :CharacteristicValue ;
+        :is-value-for :Decomposition-Rate ;
+        :value "0.02"^^xsd:decimal ;
+        qudt:unit qudt:SecondTimeInverse ;
+    ] .
+
+_:Observation3
+    a :Observation ;
+    :on-sample :Sample1 ;
+    :has-characteristic-value [
+        a :CharacteristicValue ;
+        :is-value-for :Temperature ;
+        :value "100"^^xsd:int ;
+        qudt:unit qudt:DegreeCelsius ;
+    ], 
+    [
+        a :CharacteristicValue ;
+        :is-value-for :Pressure ;
+        :value "100000"^^xsd:int ;
+        qudt:unit qudt:Pascal ;
+    ],
+    [
+        a :CharacteristicValue ;
+        :is-value-for :Decomposition-Rate ;
+        :value "0.03"^^xsd:decimal ;
+        qudt:unit qudt:SecondTimeInverse ;
+    ] .

@@ -6,14 +6,14 @@ from rdflib import Graph
 import pytest
 import oxrdflib
 
-from package import rdfhash, reverse_hash_subjects
-from package.logger import logger
-from package.utils.hash import (
+from rdfhash import rdfhash, reverse_hash_subjects
+from rdfhash.logger import logger
+from rdfhash.utils.hash import (
     hash_types,
     hash_types_requiring_length,
     hash_types_resolvable,
 )
-from package.utils.graph import graph_types
+from rdfhash.utils.graph import graph_types
 from utils import compare_graphs, graph_differences
 
 repo_dir = path.dirname(Path(__file__).parent.absolute())
