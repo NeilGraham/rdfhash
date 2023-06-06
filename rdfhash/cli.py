@@ -2,10 +2,10 @@ import argparse
 import sys
 import logging
 
-from .main import hash_subjects, reverse_hash_subjects
-from .logger import logger
-from .utils.hash import hashlib_methods
-from .utils.graph import mime, file_ext
+from rdfhash.main import hash_subjects, reverse_hash_subjects
+from rdfhash.logger import logger
+from rdfhash.utils.hash import hashlib_methods
+from rdfhash.utils.graph import mime, file_ext
 
 
 def get_parser():

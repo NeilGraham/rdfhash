@@ -1,7 +1,7 @@
-from .utils.hash import hash_string, hashlib_methods
-from .utils.graph import get_graph
-from .utils import validate_uri
-from .logger import logger
+from rdfhash.utils.hash import hash_string, hashlib_methods
+from rdfhash.utils.graph import get_graph
+from rdfhash.utils import validate_uri
+from rdfhash.logger import logger
 
 
 def hash_subjects(

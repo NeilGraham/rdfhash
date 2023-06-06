@@ -5,7 +5,7 @@ import oxrdflib
 import rdflib
 import pyoxigraph
 
-from .hash import hash_string
+from rdfhash.utils.hash import hash_string
 
 mime = {
     "trig": "application/trig",
