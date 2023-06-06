@@ -41,7 +41,6 @@ hash_types_requiring_string = {
     "uuid5",
 }
 
-# Hash types that
 hash_types_resolvable = {
     *list(hashlib_methods.keys()),
     "uuid5",
