@@ -6,28 +6,28 @@
 
 d:TimeEntry__ps5__2020_11_12 a c:TimeEntry ;
     p:date "2020-11-12"^^xsd:date ;
-    p:value <sha256:9845cdf0f7dd71017c2885ac6ab4c2adc79c97329dca557ba0ba15ad7a55ac0f> .
+    p:value <sha256:ca9914ab4a45208232b15afa18baacd847eee187d1030ce7f8f4b55336b03590> .
 
 d:TimeEntry__ps5__2022_06_01 a c:TimeEntry ;
     p:date "2022-06-01"^^xsd:date ;
-    p:value <sha256:9845cdf0f7dd71017c2885ac6ab4c2adc79c97329dca557ba0ba15ad7a55ac0f> .
+    p:value <sha256:ca9914ab4a45208232b15afa18baacd847eee187d1030ce7f8f4b55336b03590> .
 
 d:TimeEntry__xbox_series_x__2020_10_12 a c:TimeEntry ;
     p:date "2020-10-12"^^xsd:date ;
-    p:value <sha256:b56db2ccdf36095e5c0ea6f0d0662b51be271480a3b2adc840c9ed6c010e44ba> .
+    p:value <sha256:3538a20d9eecc40f034e4eb7b414638ef9a5191cf4b6d455a4ff92b2cd6bd3f8> .
 
-<sha256:b56db2ccdf36095e5c0ea6f0d0662b51be271480a3b2adc840c9ed6c010e44ba> a c:Product ;
+<sha256:3538a20d9eecc40f034e4eb7b414638ef9a5191cf4b6d455a4ff92b2cd6bd3f8> a c:Product ;
     p:available false ;
-    p:name "Microsoft - Xbox Series X 1TB Console - Black" ;
+    p:name "Microsoft - Xbox Series X 1TB Console - Black"^^xsd:string ;
     p:price <sha256:abd0d0d884d9131073ec521a9f7ae94c961d34cfbba9a40df024fa679aa1affb> ;
     p:url <https://www.bestbuy.com/site/microsoft-xbox-series-x-1tb-console-black/6428324.p> .
 
-<sha256:9845cdf0f7dd71017c2885ac6ab4c2adc79c97329dca557ba0ba15ad7a55ac0f> a c:Product ;
-    p:available false ;
-    p:name "Sony - PlayStation 5 Console" ;
-    p:price <sha256:abd0d0d884d9131073ec521a9f7ae94c961d34cfbba9a40df024fa679aa1affb> ;
-    p:url <https://www.bestbuy.com/site/sony-playstation-5-console/6426149.p> .
-
 <sha256:abd0d0d884d9131073ec521a9f7ae94c961d34cfbba9a40df024fa679aa1affb> a currency:USDollar ;
     p:amount 499.99 .
+
+<sha256:ca9914ab4a45208232b15afa18baacd847eee187d1030ce7f8f4b55336b03590> a c:Product ;
+    p:available false ;
+    p:name "Sony - PlayStation 5 Console"^^xsd:string ;
+    p:price <sha256:abd0d0d884d9131073ec521a9f7ae94c961d34cfbba9a40df024fa679aa1affb> ;
+    p:url <https://www.bestbuy.com/site/sony-playstation-5-console/6426149.p> .
 

@@ -206,7 +206,7 @@ def hash_subject(
 
         # Append `{predicate} {object}.\n` to list of values to hash.
         hash_input_list.append(
-            f"{graph.term_to_string(triple_new[0], expand_xsd_string=True)} {graph.term_to_string(triple_new[1], expand_xsd_string=True)}.\n"
+            f"{graph.term_to_string(triple_new[0], True)} {graph.term_to_string(triple_new[1], True)}.\n"
         )
 
     # Sort and concatenate list, hash value, then add to graph.
@@ -217,7 +217,6 @@ def hash_subject(
 
     # Join list of strings to be hashed.
     hash_input = "".join(hash_input_list)
-    print(f"'{hash_input}'")
 
     logger.debug(f'({len(hash_input_list)}) Hashing triple set: """{hash_input}"""')
 

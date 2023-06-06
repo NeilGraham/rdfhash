@@ -1,0 +1,13 @@
+#!/usr/bin/env python3
+
+import sys
+import os
+# Get scripts directory
+script_dir = os.path.dirname(os.path.realpath(__file__))
+
+# Add root directory to path
+sys.path.append(os.path.join(script_dir, ".."))
+
+from rdfhash.cli import cli
+
+cli()

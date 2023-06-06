@@ -15,7 +15,7 @@
   :composed-of [
     a :Composition ;
     :substance chebi:CHEBI_16240 ; # Hydrogen Peroxide (H202)
-    :percent "100"^^xsd:int ; # 100%
+    :percent "100"^^xsd:integer ; # 100%
   ] .
 
 _:Hypothesis1
@@ -28,13 +28,13 @@ _:Observation1
     :has-characteristic-value [
         a :CharacteristicValue ;
         :is-value-for :Temperature ;
-        :value "40"^^xsd:int ;
+        :value "40"^^xsd:integer ;
         qudt:unit qudt:DegreeCelsius ;
     ], 
     [
         a :CharacteristicValue ;
         :is-value-for :Pressure ;
-        :value "100000"^^xsd:int ;
+        :value "100000"^^xsd:integer ;
         qudt:unit qudt:Pascal ;
     ],
     [
@@ -50,13 +50,13 @@ _:Observation2
     :has-characteristic-value [
         a :CharacteristicValue ;
         :is-value-for :Temperature ;
-        :value "60"^^xsd:int ;
+        :value "60"^^xsd:integer ;
         qudt:unit qudt:DegreeCelsius ;
     ],
     [
         a :CharacteristicValue ;
         :is-value-for :Pressure ;
-        :value "100000"^^xsd:int ;
+        :value "100000"^^xsd:integer ;
         qudt:unit qudt:Pascal ;
     ],
     [
@@ -72,13 +72,13 @@ _:Observation3
     :has-characteristic-value [
         a :CharacteristicValue ;
         :is-value-for :Temperature ;
-        :value "100"^^xsd:int ;
+        :value "100"^^xsd:integer ;
         qudt:unit qudt:DegreeCelsius ;
     ], 
     [
         a :CharacteristicValue ;
         :is-value-for :Pressure ;
-        :value "100000"^^xsd:int ;
+        :value "100000"^^xsd:integer ;
         qudt:unit qudt:Pascal ;
     ],
     [

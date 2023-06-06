@@ -56,6 +56,14 @@ class __Graph__:
     Literal = rdflib.Literal
     Variable = rdflib.Variable
 
+    xsd_langstring = rdflib.URIRef(
+        "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString"
+    )
+
+    xsd_string = rdflib.URIRef("http://www.w3.org/2001/XMLSchema#string")
+    
+    xsd_boolean = rdflib.URIRef("http://www.w3.org/2001/XMLSchema#boolean")
+
     default_format = mime["trig"]
 
     supports_named_graphs = True
@@ -173,11 +181,18 @@ class __Graph__:
             ]
         )
 
-    def term_to_string(self, term, expand_xsd_string=False):
-        if expand_xsd_string and type(term) == self.Literal and term.datatype == None:
+    def term_to_string(self, term, expand_literals=False):
+        if expand_literals and type(term) == self.Literal:
+            value, datatype, language = term.value, term.datatype, term.language
+            if datatype == None:
+                if language:
+                    datatype = self.xsd_langstring
+                else:
+                    datatype = self.xsd_string
             if term.language:
-                return f'"{term.value}"^^<http://www.w3.org/2001/XMLSchema#string>@{term.language}'
-            return f'"{term.value}"^^<http://www.w3.org/2001/XMLSchema#string>'
+                return f'"{value}"^^{datatype.n3()}@{language}'
+
+            return f'"{value}"^^{datatype.n3()}'
         return term.n3()
 
     def hash_triples(self, triples, method="sha256", triple_format="{p} {o}\n"):
@@ -268,6 +283,7 @@ class OxiGraph(__Graph__):
     Quad = pyoxigraph.Quad
 
     xsd_string = pyoxigraph.NamedNode("http://www.w3.org/2001/XMLSchema#string")
+    xsd_boolean = pyoxigraph.NamedNode("http://www.w3.org/2001/XMLSchema#boolean")
 
     supports_named_graphs = True
 
@@ -314,15 +330,14 @@ class OxiGraph(__Graph__):
     def triples(self, triple):
         return self.quads(triple)
 
-    def term_to_string(self, term, expand_xsd_string=False):
-        if (
-            expand_xsd_string
-            and type(term) == self.Literal
-            and term.datatype == self.xsd_string
-        ):
-            if term.language != None:
-                return f'"{term.value}"^^{term.datatype}@{term.language}'
-            return f'"{term.value}"^^{term.datatype}'
+    def term_to_string(self, term, expand_literals=False):
+        if expand_literals and type(term) == self.Literal:
+            value, datatype, language = term.value, term.datatype, term.language
+            if datatype == self.xsd_boolean:
+                value = str(value.capitalize())
+            if language:
+                return f'"{value}"^^{datatype}@{language}'
+            return f'"{value}"^^{datatype}'
         return str(term)
 
     def add(self, quad):

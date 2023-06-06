@@ -31,6 +31,7 @@ for i in range(0, len(resolvable_hash_methods)):
 # @pytest.mark.parametrize("hash_method", resolvable_hash_methods)
 @pytest.mark.parametrize("hash_method", ["sha256"])
 @pytest.mark.parametrize("graph_type", list(graph_types.keys()))
+# @pytest.mark.parametrize("graph_type", ["oxrdflib"])
 def test__hash_examples(file_path, hash_method, graph_type, force_write=False):
     """Hash file and compare against hash file.
 
