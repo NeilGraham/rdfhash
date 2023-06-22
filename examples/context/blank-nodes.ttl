@@ -1,0 +1,13 @@
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+@prefix hash: <http://rdfhash.com/ontology/> .
+@prefix hashid: <http://rdfhash.com/id/> .
+
+# Example Instances
+
+hashid:BlankNodes_Rule a hash:Rule ;
+    hash:priority 1 ;
+    hash:method hash:sha256 ;
+    hash:sparql "SELECT ?s WHERE {?s ?p ?o . FILTER (isBlank(?s))}" ;
+    hash:template "http://rdfhash.com/id/{method}:{value}" ;
+    .

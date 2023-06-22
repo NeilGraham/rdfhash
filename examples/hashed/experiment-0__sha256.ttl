@@ -1,75 +1,75 @@
-@prefix : <http://rdfhash.com/> .
+@prefix : <http://rdfhash.com/ontology/> .
 @prefix chebi: <http://purl.obolibrary.org/obo/> .
 @prefix qudt: <http://qudt.org/schema/qudt/> .
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 :Experiment1 a :Experiment ;
-    :has-hypothesis <sha256:7e177a4b3c9ea21a9b5189e39a9f3ff6834a84d7bf40ed5030e2ab55483eb737> ;
-    :has-observation <sha256:2bb6bfe0f1819b54fb94376438b0af5f77cd478551319f5da5017224e3151271>,
-        <sha256:a0e1fef683580259793cbc687e8407c9732813a780524a2561feafe86cdeaa57>,
-        <sha256:a9b0a172bde5607b9d92e085996886d4ebe7004f876a1e19b58c8c3f04d130b7> .
+    :hasHypothesis <sha256:500a24d44263b8a2dd7dbe0feec7d6371c27f4a654a67bd09e5416a60ba55159> ;
+    :hasObservation <sha256:3574f543824ef4410a98a72210c424b68cee59fde937a372ece953e7748511a3>,
+        <sha256:3bf2ea9e4bec77f6795690523f90f7e1dbd77ced0d8009f51bc4ddb0f030a60a>,
+        <sha256:d84451cf8fecb2da6c5caac76bd380427091560df02e58f03c483f31953a38c2> .
 
-<sha256:2147dafb3380d2a735bd1f88c06d6b5a50a77aef9afe337157924edd9d136386> a :CharacteristicValue ;
+<sha256:3574f543824ef4410a98a72210c424b68cee59fde937a372ece953e7748511a3> a :Observation ;
+    :hasAttribute <sha256:5faa714dfc4383152e726c0481ad01e0ef00ff122b879a249a427f01b425cb40>,
+        <sha256:9fe9971b242de9a4c2f8435d15d7d7aea0a6bccbda797ab682dec2223a04bf5a>,
+        <sha256:a4c71dde9e94db4853fc2bf80503ae0256f0df8d609c0a51a3bab465cceeadba> ;
+    :onSample :Sample1 .
+
+<sha256:3b177baef85cd7f177aaef6009e3bcb9cfd5d44e531ddea66925ffbeee155e12> a :Attribute ;
     qudt:unit qudt:DegreeCelsius ;
-    :is-value-for :Temperature ;
+    :for :Temperature ;
     :value 60 .
 
-<sha256:2bb6bfe0f1819b54fb94376438b0af5f77cd478551319f5da5017224e3151271> a :Observation ;
-    :has-characteristic-value <sha256:073de2a33afe6fac640b3d737f24ed79b2d61ee4847c73d5e4b7f5b369a67d05>,
-        <sha256:62a5dd63873d9266974461917651a41dc778d4f15012fc38efae23bde5b0de10>,
-        <sha256:b1e657706a55c2e12f537c224dfeabaaed407cf65f30acbe5bf1493655256aa0> ;
-    :on-sample :Sample1 .
+<sha256:3bf2ea9e4bec77f6795690523f90f7e1dbd77ced0d8009f51bc4ddb0f030a60a> a :Observation ;
+    :hasAttribute <sha256:3b177baef85cd7f177aaef6009e3bcb9cfd5d44e531ddea66925ffbeee155e12>,
+        <sha256:a4c71dde9e94db4853fc2bf80503ae0256f0df8d609c0a51a3bab465cceeadba>,
+        <sha256:b2ee1f91b3e7d3144ccd83a3f8f651cb99be610fd422a0cd3a41969082d80a1b> ;
+    :onSample :Sample1 .
 
-<sha256:4dd94bd677f5b92bcc1e321039f048bc56185f2ec838292c1e749a2fcb3eb5b8> a :CharacteristicValue ;
-    qudt:unit qudt:DegreeCelsius ;
-    :is-value-for :Temperature ;
-    :value 40 .
-
-<sha256:57b735a58b0d425b9a989161ff14737902ae24597ce631669410609deb0708d3> a :CharacteristicValue ;
-    qudt:unit qudt:SecondTimeInverse ;
-    :is-value-for :Decomposition-Rate ;
-    :value 0.02 .
-
-<sha256:62a5dd63873d9266974461917651a41dc778d4f15012fc38efae23bde5b0de10> a :CharacteristicValue ;
-    qudt:unit qudt:SecondTimeInverse ;
-    :is-value-for :Decomposition-Rate ;
-    :value 0.03 .
-
-<sha256:7d985c7e5db5514f5528829fff1071ae0d7de55290b5d3010b4e3d560af394d5> a :CharacteristicValue ;
-    qudt:unit qudt:SecondTimeInverse ;
-    :is-value-for :Decomposition-Rate ;
-    :value 0.01 .
-
-<sha256:7e177a4b3c9ea21a9b5189e39a9f3ff6834a84d7bf40ed5030e2ab55483eb737> a :Hypothesis ;
+<sha256:500a24d44263b8a2dd7dbe0feec7d6371c27f4a654a67bd09e5416a60ba55159> a :Hypothesis ;
     skos:definition "If the temperature is increased while the pressure is held constant, the rate of decomposition of 100% Hydrogen Peroxide (H2O2) will increase."@en .
 
-<sha256:9f246d834e2b04f7633f3d23e24cbf972ff6277a6186e71f91c25c4c65ffc605> a :Composition ;
+<sha256:5a8bd36d90d6e5eba157608dfcf20254aae522fba5d907e68a2aada83856da43> a :Attribute ;
+    qudt:unit qudt:DegreeCelsius ;
+    :for :Temperature ;
+    :value 100 .
+
+<sha256:5faa714dfc4383152e726c0481ad01e0ef00ff122b879a249a427f01b425cb40> a :Attribute ;
+    qudt:unit qudt:DegreeCelsius ;
+    :for :Temperature ;
+    :value 40 .
+
+<sha256:9fe9971b242de9a4c2f8435d15d7d7aea0a6bccbda797ab682dec2223a04bf5a> a :Attribute ;
+    qudt:unit qudt:SecondTimeInverse ;
+    :for :DecompositionRate ;
+    :value 0.01 .
+
+<sha256:b2ee1f91b3e7d3144ccd83a3f8f651cb99be610fd422a0cd3a41969082d80a1b> a :Attribute ;
+    qudt:unit qudt:SecondTimeInverse ;
+    :for :DecompositionRate ;
+    :value 0.02 .
+
+<sha256:b2f46b42962f5adbf7d83ac0d88f1f83f256da31d441a316a91e218602902579> a :Attribute ;
+    qudt:unit qudt:SecondTimeInverse ;
+    :for :DecompositionRate ;
+    :value 0.03 .
+
+<sha256:d84451cf8fecb2da6c5caac76bd380427091560df02e58f03c483f31953a38c2> a :Observation ;
+    :hasAttribute <sha256:5a8bd36d90d6e5eba157608dfcf20254aae522fba5d907e68a2aada83856da43>,
+        <sha256:a4c71dde9e94db4853fc2bf80503ae0256f0df8d609c0a51a3bab465cceeadba>,
+        <sha256:b2f46b42962f5adbf7d83ac0d88f1f83f256da31d441a316a91e218602902579> ;
+    :onSample :Sample1 .
+
+<sha256:dcd87523297a48ad7ae87fd4b418f50090e61b995417db6d6651fe2c51e65936> a :CompositionPart ;
     :percent 100 ;
     :substance chebi:CHEBI_16240 .
 
-<sha256:a0e1fef683580259793cbc687e8407c9732813a780524a2561feafe86cdeaa57> a :Observation ;
-    :has-characteristic-value <sha256:073de2a33afe6fac640b3d737f24ed79b2d61ee4847c73d5e4b7f5b369a67d05>,
-        <sha256:2147dafb3380d2a735bd1f88c06d6b5a50a77aef9afe337157924edd9d136386>,
-        <sha256:57b735a58b0d425b9a989161ff14737902ae24597ce631669410609deb0708d3> ;
-    :on-sample :Sample1 .
-
-<sha256:a9b0a172bde5607b9d92e085996886d4ebe7004f876a1e19b58c8c3f04d130b7> a :Observation ;
-    :has-characteristic-value <sha256:073de2a33afe6fac640b3d737f24ed79b2d61ee4847c73d5e4b7f5b369a67d05>,
-        <sha256:4dd94bd677f5b92bcc1e321039f048bc56185f2ec838292c1e749a2fcb3eb5b8>,
-        <sha256:7d985c7e5db5514f5528829fff1071ae0d7de55290b5d3010b4e3d560af394d5> ;
-    :on-sample :Sample1 .
-
-<sha256:b1e657706a55c2e12f537c224dfeabaaed407cf65f30acbe5bf1493655256aa0> a :CharacteristicValue ;
-    qudt:unit qudt:DegreeCelsius ;
-    :is-value-for :Temperature ;
-    :value 100 .
-
 :Sample1 a :Sample ;
-    :composed-of <sha256:9f246d834e2b04f7633f3d23e24cbf972ff6277a6186e71f91c25c4c65ffc605> .
+    :composedOf <sha256:dcd87523297a48ad7ae87fd4b418f50090e61b995417db6d6651fe2c51e65936> .
 
-<sha256:073de2a33afe6fac640b3d737f24ed79b2d61ee4847c73d5e4b7f5b369a67d05> a :CharacteristicValue ;
+<sha256:a4c71dde9e94db4853fc2bf80503ae0256f0df8d609c0a51a3bab465cceeadba> a :Attribute ;
     qudt:unit qudt:Pascal ;
-    :is-value-for :Pressure ;
+    :for :Pressure ;
     :value 100000 .
 

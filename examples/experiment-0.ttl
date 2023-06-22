@@ -1,4 +1,4 @@
-@prefix : <http://rdfhash.com/> .
+@prefix : <http://rdfhash.com/ontology/> .
 @prefix qudt: <http://qudt.org/schema/qudt/> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
@@ -7,13 +7,13 @@
 
 :Experiment1
     a :Experiment ;
-    :has-hypothesis _:Hypothesis1 ;
-    :has-observation _:Observation1, _:Observation2, _:Observation3 .
+    :hasHypothesis _:Hypothesis1 ;
+    :hasObservation _:Observation1, _:Observation2, _:Observation3 .
 
 :Sample1
   a :Sample ;
-  :composed-of [
-    a :Composition ;
+  :composedOf [
+    a :CompositionPart ;
     :substance chebi:CHEBI_16240 ; # Hydrogen Peroxide (H202)
     :percent "100"^^xsd:integer ; # 100%
   ] .
@@ -24,66 +24,66 @@ _:Hypothesis1
 
 _:Observation1
     a :Observation ;
-    :on-sample :Sample1 ;
-    :has-characteristic-value [
-        a :CharacteristicValue ;
-        :is-value-for :Temperature ;
+    :onSample :Sample1 ;
+    :hasAttribute [
+        a :Attribute ;
+        :for :Temperature ;
         :value "40"^^xsd:integer ;
         qudt:unit qudt:DegreeCelsius ;
     ], 
     [
-        a :CharacteristicValue ;
-        :is-value-for :Pressure ;
+        a :Attribute ;
+        :for :Pressure ;
         :value "100000"^^xsd:integer ;
         qudt:unit qudt:Pascal ;
     ],
     [
-        a :CharacteristicValue ;
-        :is-value-for :Decomposition-Rate ;
+        a :Attribute ;
+        :for :DecompositionRate ;
         :value "0.01"^^xsd:decimal ;
         qudt:unit qudt:SecondTimeInverse ;
     ] .
 
 _:Observation2
     a :Observation ;
-    :on-sample :Sample1 ;
-    :has-characteristic-value [
-        a :CharacteristicValue ;
-        :is-value-for :Temperature ;
+    :onSample :Sample1 ;
+    :hasAttribute [
+        a :Attribute ;
+        :for :Temperature ;
         :value "60"^^xsd:integer ;
         qudt:unit qudt:DegreeCelsius ;
     ],
     [
-        a :CharacteristicValue ;
-        :is-value-for :Pressure ;
+        a :Attribute ;
+        :for :Pressure ;
         :value "100000"^^xsd:integer ;
         qudt:unit qudt:Pascal ;
     ],
     [
-        a :CharacteristicValue ;
-        :is-value-for :Decomposition-Rate ;
+        a :Attribute ;
+        :for :DecompositionRate ;
         :value "0.02"^^xsd:decimal ;
         qudt:unit qudt:SecondTimeInverse ;
     ] .
 
 _:Observation3
     a :Observation ;
-    :on-sample :Sample1 ;
-    :has-characteristic-value [
-        a :CharacteristicValue ;
-        :is-value-for :Temperature ;
+    :onSample :Sample1 ;
+    :hasAttribute [
+        a :Attribute ;
+        :for :Temperature ;
         :value "100"^^xsd:integer ;
         qudt:unit qudt:DegreeCelsius ;
-    ], 
+    ],
     [
-        a :CharacteristicValue ;
-        :is-value-for :Pressure ;
+        a :Attribute ;
+        :for :Pressure ;
         :value "100000"^^xsd:integer ;
         qudt:unit qudt:Pascal ;
     ],
     [
-        a :CharacteristicValue ;
-        :is-value-for :Decomposition-Rate ;
+        a :Attribute ;
+        :for :DecompositionRate ;
         :value "0.03"^^xsd:decimal ;
         qudt:unit qudt:SecondTimeInverse ;
     ] .

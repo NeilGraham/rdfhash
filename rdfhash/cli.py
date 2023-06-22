@@ -4,8 +4,8 @@ import logging
 
 from rdfhash.main import hash_subjects, reverse_hash_subjects
 from rdfhash.logger import logger
-from rdfhash.utils.hash import hashlib_methods
-from rdfhash.utils.graph import mime, file_ext
+from rdfhash.utils.hash import hash_types
+from rdfhash.utils.graph import mime, file_ext, graph_types
 
 
 def get_parser():
@@ -23,13 +23,15 @@ def get_parser():
     parser.add_argument(
         "data",
         nargs="+",
-        help="Input RDF string or file path. Supported file formats are '.nt', '.nq', '.ttl', '.trig', '.n3', '.xml', '.rdf'.",
+        help="Input RDF string or file path.\nSupported file formats: ['."
+        + "', '.".join(file_ext.keys())
+        + "']",
     )
 
     parser.add_argument(
         "-f",
         "--format",
-        help="Input format. Supports 'turtle', 'ntriples', 'nquads', 'xml', 'n3'.",
+        help="Input format.\nSupports: ['" + "', '".join(mime.keys()) + "']",
         default="text/turtle",
     )
 
@@ -37,14 +39,16 @@ def get_parser():
         "-g",
         "--graph",
         default="oxrdflib",
-        help="Graph library to use. Supports 'oxrdflib', 'rdflib', 'oxigraph'.",
+        help="Graph library to use.\nSupports: ['"
+        + "', '".join(graph_types.keys())
+        + "']",
     )
 
     parser.add_argument(
         "-a",
         "--accept",
         default="text/turtle",
-        help="Output accept format. Supports 'turtle', 'ntriples', 'nquads', 'xml', 'n3'.",
+        help=f"Output accept format.\nSupports: ['" + "', '".join(mime.keys()) + "']",
     )
 
     parser.add_argument(
@@ -59,14 +63,14 @@ def get_parser():
         "--method",
         "--hash-method",
         default="sha256",
-        help="Hash method. Supports '" + "', '".join(hashlib_methods.keys()) + "'.",
+        help="Hash method.\nSupports: ['" + "', '".join(hash_types.keys()) + "']",
     )
 
     parser.add_argument(
         "-s",
         "--sparql",
         "--sparql-select-subjects",
-        default="SELECT DISTINCT ?s WHERE { ?s ?p ?o . FILTER (isBlank(?s)) }",
+        default="SELECT ?s WHERE { ?s ?p ?o . FILTER (isBlank(?s)) }",
         help="SPARQL SELECT query returning subject URIs to replace with hash of"
         " their triples. Defaults to all blank node subjects.",
     )
@@ -75,7 +79,7 @@ def get_parser():
         "-r",
         "--reverse",
         action="store_true",
-        help="Reverse hashed URIs to Blank Nodes. --template is used to identify hashed URI te",
+        help="Reverse hashed URIs to Blank Nodes. --template is used to identify hashed URI template.",
     )
 
     parser.add_argument(

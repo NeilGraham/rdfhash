@@ -14,7 +14,7 @@ from rdfhash.utils.hash import (
     hash_types_resolvable,
 )
 from rdfhash.utils.graph import graph_types
-from utils import compare_graphs, graph_differences
+from utils import compare_graphs, graph_diff
 
 repo_dir = path.dirname(Path(__file__).parent.absolute())
 ttl_files = (
@@ -91,7 +91,7 @@ def test__hash_examples(file_path, hash_method, graph_type, force_write=False):
         graph.serialize(hash_file_path, format="text/turtle")
 
     if not success:
-        differences = graph_differences(graph_generated, graph_actual)
+        differences = graph_diff(graph_generated, graph_actual)
         diff_s = ""
 
         if len(differences["in_g1_not_g2"]) > 0:

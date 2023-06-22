@@ -1,0 +1,375 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+@prefix gist: <https://ontologies.semanticarts.com/gist/> .
+
+@prefix hash: <http://rdfhash.com/ontology/> .
+@prefix hashid: <http://rdfhash.com/id/> .
+
+hash: a owl:Ontology ;
+    rdfs:label "`rdfhash` Ontology" ;
+    rdfs:comment "Ontology for `rdfhash` tool." ;
+    owl:versionInfo "0.0.1" ;
+    rdfs:seeAlso <http://rdfhash.com/>, <https://github.com/NeilGraham/rdfhash> ;
+    dcterms:creator <https://github.com/NeilGraham> ;
+    dcterms:created "2023-06-22"^^xsd:date ;
+    .
+
+hash:id a owl:DatatypeProperty ;
+    rdfs:label "id" ;
+    rdfs:comment "Main identifier for subject. Can be Literal or URI. A subject can only have 1 instance of this property." ;
+    rdfs:subPropertyOf sh:property ;
+    rdfs:domain owl:Thing ;
+    rdfs:range xsd:string ;
+    dcterms:creator <https://github.com/NeilGraham> ;
+    dcterms:created "2023-06-22"^^xsd:date ;
+    .
+
+hash:id_shape a sh:PropertyShape ;
+    sh:path hash:id ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    dcterms:creator <https://github.com/NeilGraham> ;
+    dcterms:created "2023-06-22"^^xsd:date ;
+    .
+
+# _____________________________________________________________________________ #
+
+
+hash:Rule a owl:Class, sh:NodeShape ;
+    rdfs:label "Rule" ;
+    rdfs:comment "A rule for selecting subject URI's and hashing a checksum of their source/subset graph definition." ;
+    dcterms:creator <https://github.com/NeilGraham> ;
+    dcterms:created "2023-06-22"^^xsd:date ;
+    sh:property hash:id_shape ;
+    sh:property [
+        a sh:PropertyShape ;
+        sh:path hash:sparql ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+    ], [
+        a sh:PropertyShape ;
+        sh:path hash:insert ;
+        sh:class hash:Definition ;
+
+    ], [
+        a sh:PropertyShape ;
+        sh:path hash:method ;
+        sh:class hash:Method ;
+        sh:maxCount 1 ;
+        sh:defaultValue hash:sha256 ;
+    ], [
+        a sh:PropertyShape ;
+        sh:path hash:template ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:defaultValue "{method}:{value}" ;
+    ], [
+        a sh:PropertyShape ;
+        sh:path hash:include ;
+    ], [
+        a sh:PropertyShape ;
+        sh:path hash:exclude ;
+        sh:class hash:Triples ;
+    ], [
+        a sh:PropertyShape ;
+        sh:path hash:inputTemplate ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:defaultValue "{p} {o}.\\n" ;
+    ], [
+        a sh:PropertyShape ;
+        sh:path hash:bitSize ;
+        sh:datatype xsd:integer ;
+        sh:maxCount 1 ;
+    ] .
+# __   __   __   __   __   __   __   __   __   __   __   __   __   __   __   __ #
+
+hash:sparql a owl:DatatypeProperty ;
+    rdfs:label "sparql" ;
+    rdfs:comment "SPARQL query used to select instances to be hashed. SELECT returns Subject URIs to replace with a checksum of their source graph definition. CONSTRUCT allows you to return a subset of the graph to hash; All Subject URIs are replaced in the source graph with a checksum of the CONSTRUCTed graph definition." ;
+    rdfs:subPropertyOf sh:property ;
+    rdfs:domain hash:Rule ;
+    rdfs:range xsd:string ;
+    dcterms:creator <https://github.com/NeilGraham> ;
+    dcterms:created "2023-06-22"^^xsd:date ;
+    .
+
+hash:insert a owl:ObjectProperty ;
+    rdfs:label "insert" ;
+    rdfs:comment "A nested set of triples that are inserted on selected instances. Look at `hash:Triples` for more information on handling dynamic values." ;
+    rdfs:domain hash:Rule ;
+    rdfs:range hash:Definition ;
+    dcterms:creator <https://github.com/NeilGraham> ;
+    dcterms:created "2023-06-22"^^xsd:date ;
+    .
+
+hash:inherit a owl:ObjectProperty ;
+    rdfs:label "inherit" ;
+    rdfs:comment "Inherit all properties from another `hash:Rule` instance. " ;
+    rdfs:domain hash:Rule ;
+    rdfs:range hash:Rule ;
+    dcterms:creator <https://github.com/NeilGraham> ;
+    dcterms:created "2023-06-22"^^xsd:date ;
+    .
+
+hash:method a owl:ObjectProperty ;
+    rdfs:label "method" ;
+    rdfs:comment "The hash method used to generate the hash value. (e.g. `hash:sha256`)" ;
+    rdfs:domain hash:Rule ;
+    rdfs:range hash:Method ;
+    dcterms:creator <https://github.com/NeilGraham> ;
+    dcterms:created "2023-06-22"^^xsd:date ;
+    .
+
+hash:template a owl:DatatypeProperty ;
+    rdfs:label "template" ;
+    rdfs:comment "URI template generated from hash value. The template can contain the following variables: {method} (e.g. `md5`), {value} (e.g. `a6be11c879133def33fdb767be80056f`)" ;
+    rdfs:domain hash:Rule ;
+    rdfs:range xsd:string ;
+    dcterms:creator <https://github.com/NeilGraham> ;
+    dcterms:created "2023-06-22"^^xsd:date ;
+    .
+
+hash:include a owl:ObjectProperty ;
+    rdfs:label "include" ;
+    rdfs:comment "The list of properties to include in the hash input. If none specified, all properties are included." ;
+    rdfs:domain hash:Rule ;
+    rdfs:range owl:Thing ;
+    dcterms:creator <https://github.com/NeilGraham> ;
+    dcterms:created "2023-06-22"^^xsd:date ;
+    .
+
+hash:exclude a owl:ObjectProperty ;
+    rdfs:label "exclude" ;
+    rdfs:comment "The list of properties to exclude from the hash input." ;
+    rdfs:domain hash:Rule ;
+    rdfs:range owl:Thing ;
+    dcterms:creator <https://github.com/NeilGraham> ;
+    dcterms:created "2023-06-22"^^xsd:date ;
+    .
+
+hash:inputTemplate a owl:DatatypeProperty ;
+    rdfs:label "input template" ;
+    rdfs:comment "Input triple statement used to generate hash value. The generated template is sorted among a list of all other triples on the subject, then joined together with an empty string. The template can contain the following variables: {p} (predicate), {o} (object)." ;
+    rdfs:domain hash:Rule ;
+    rdfs:range xsd:string ;
+    dcterms:creator <https://github.com/NeilGraham> ;
+    dcterms:created "2023-06-22"^^xsd:date ;
+    .
+
+hash:bitSize a owl:DatatypeProperty ;
+    rdfs:label "Bit Size" ;
+    rdfs:comment "Size of the hash value in bits." ;
+    rdfs:subPropertyOf sh:property ;
+    rdfs:domain hash:Rule ;
+    rdfs:range xsd:integer ;
+    dcterms:creator <https://github.com/NeilGraham> ;
+    dcterms:created "2023-06-22"^^xsd:date ;
+    .
+
+# _____________________________________________________________________________ #
+# hash:Option & hash:SaltForm
+
+hash:Option a owl:Class, sh:NodeShape ;
+    rdfs:subClassOf gist:Category ;
+    dcterms:creator <https://github.com/NeilGraham> ;
+    dcterms:created "2023-06-22"^^xsd:date ;
+    .
+
+hash:SaltForm a owl:Class, sh:NodeShape ;
+    rdfs:subClassOf gist:Option ;
+    dcterms:creator <https://github.com/NeilGraham> ;
+    dcterms:created "2023-06-22"^^xsd:date ;
+    .
+# __   __   __   __   __   __   __   __   __   __   __   __   __   __   __   __ #
+
+hash:option a owl:ObjectProperty ;
+    rdfs:subPropertyOf gist:isCategorizedBy ;
+    rdfs:label "option" ;
+    rdfs:comment "An option for a hash method." ;
+    rdfs:domain hash:Rule ;
+    rdfs:range hash:Option ;
+    dcterms:creator <https://github.com/NeilGraham> ;
+    dcterms:created "2023-06-22"^^xsd:date ;
+    .
+# __   __   __   __   __   __   __   __   __   __   __   __   __   __   __   __ #
+
+hash:saltPrefixTriples a hash:SaltForm, owl:NamedIndividual ;
+    rdfs:label "prefix triples" ;
+    rdfs:comment "Insert salt before each triple in the input hash string." ;
+    dcterms:creator <https://github.com/NeilGraham> ;
+    dcterms:created "2023-06-22"^^xsd:date ;
+    .
+
+hash:saltSuffixTriples a hash:SaltForm, owl:NamedIndividual ;
+    rdfs:label "suffix triples" ;
+    rdfs:comment "Insert salt after each triple in the input hash string." ;
+    dcterms:creator <https://github.com/NeilGraham> ;
+    dcterms:created "2023-06-22"^^xsd:date ;
+    .
+# _____________________________________________________________________________ #
+
+hash:Method a owl:Class, sh:NodeShape ;
+    rdfs:subClassOf gist:Category ;
+    dcterms:creator <https://github.com/NeilGraham> ;
+    dcterms:created "2023-06-22"^^xsd:date ;
+    sh:property [
+        a sh:PropertyShape ;
+        sh:path hash:requiresBitSize ;
+        sh:datatype xsd:boolean ;
+        sh:defaultValue false ;
+    ] ;
+    sh:property [
+        a sh:PropertyShape ;
+        sh:path hash:isDeterministic ;
+        sh:datatype xsd:boolean ;
+        sh:defaultValue false ;
+    ] ;
+    .
+# __   __   __   __   __   __   __   __   __   __   __   __   __   __   __   __ #
+
+hash:isDeterministic a gist:Category, owl:NamedIndividual ;
+    rdfs:label "is deterministic" ;
+    rdfs:comment "Whether the hash method is deterministic." ;
+    dcterms:creator <https://github.com/NeilGraham> ;
+    dcterms:created "2023-06-22"^^xsd:date ;
+    .
+
+hash:requiresBitSize a gist:Category, owl:NamedIndividual ;
+    rdfs:label "requires bit size" ;
+    rdfs:comment "Whether the hash method requires a bit size." ;
+    dcterms:creator <https://github.com/NeilGraham> ;
+    dcterms:created "2023-06-22"^^xsd:date ;
+    .
+
+hash:md5 a hash:Method, owl:NamedIndividual ;
+    hash:id "md5" ;
+    gist:isCategorizedBy hash:isDeterministic ;
+    dcterms:creator <https://github.com/NeilGraham> ;
+    dcterms:created "2023-06-22"^^xsd:date ;
+    .
+
+hash:sha1 a hash:Method, owl:NamedIndividual ;
+    rdfs:label "sha1" ;
+    gist:isCategorizedBy hash:isDeterministic ;
+    dcterms:creator <https://github.com/NeilGraham> ;
+    dcterms:created "2023-06-22"^^xsd:date ;
+    .
+
+hash:sha224 a hash:Method, owl:NamedIndividual ;
+    rdfs:label "sha224" ;
+    gist:isCategorizedBy hash:isDeterministic ;
+    dcterms:creator <https://github.com/NeilGraham> ;
+    dcterms:created "2023-06-22"^^xsd:date ;
+    .
+
+hash:sha256 a hash:Method, owl:NamedIndividual ;
+    rdfs:label "sha256" ;
+    gist:isCategorizedBy hash:isDeterministic ;
+    dcterms:creator <https://github.com/NeilGraham> ;
+    dcterms:created "2023-06-22"^^xsd:date ;
+    .
+
+hash:sha384 a hash:Method, owl:NamedIndividual ;
+    rdfs:label "sha384" ;
+    gist:isCategorizedBy hash:isDeterministic ;
+    dcterms:creator <https://github.com/NeilGraham> ;
+    dcterms:created "2023-06-22"^^xsd:date ;
+    .
+
+hash:sha512 a hash:Method, owl:NamedIndividual ;
+    rdfs:label "sha512" ;
+    gist:isCategorizedBy hash:isDeterministic ;
+    dcterms:creator <https://github.com/NeilGraham> ;
+    dcterms:created "2023-06-22"^^xsd:date ;
+    .
+
+hash:sha3-224 a hash:Method, owl:NamedIndividual ;
+    rdfs:label "sha3-224" ;
+    gist:isCategorizedBy hash:isDeterministic ;
+    dcterms:creator <https://github.com/NeilGraham> ;
+    dcterms:created "2023-06-22"^^xsd:date ;
+    .
+
+hash:sha3-256 a hash:Method, owl:NamedIndividual ;
+    rdfs:label "sha3-256" ;
+    gist:isCategorizedBy hash:isDeterministic ;
+    dcterms:creator <https://github.com/NeilGraham> ;
+    dcterms:created "2023-06-22"^^xsd:date ;
+    .
+
+hash:sha3-384 a hash:Method, owl:NamedIndividual ;
+    rdfs:label "sha3-384" ;
+    gist:isCategorizedBy hash:isDeterministic ;
+    dcterms:creator <https://github.com/NeilGraham> ;
+    dcterms:created "2023-06-22"^^xsd:date ;
+    .
+
+hash:sha3-512 a hash:Method, owl:NamedIndividual ;
+    rdfs:label "sha3-512" ;
+    gist:isCategorizedBy hash:isDeterministic ;
+    dcterms:creator <https://github.com/NeilGraham> ;
+    dcterms:created "2023-06-22"^^xsd:date ;
+    .
+
+hash:blake2b a hash:Method, owl:NamedIndividual ;
+    rdfs:label "blake2b" ;
+    gist:isCategorizedBy hash:isDeterministic ;
+    dcterms:creator <https://github.com/NeilGraham> ;
+    dcterms:created "2023-06-22"^^xsd:date ;
+    .
+
+hash:blake2s a hash:Method, owl:NamedIndividual ;
+    rdfs:label "blake2s" ;
+    gist:isCategorizedBy hash:isDeterministic ;
+    dcterms:creator <https://github.com/NeilGraham> ;
+    dcterms:created "2023-06-22"^^xsd:date ;
+    .
+
+hash:uuid1 a hash:Method, owl:NamedIndividual ;
+    rdfs:label "uuid1" ;
+    dcterms:creator <https://github.com/NeilGraham> ;
+    dcterms:created "2023-06-22"^^xsd:date ;
+    .
+
+hash:uuid3 a hash:Method, owl:NamedIndividual ;
+    rdfs:label "uuid3" ;
+    dcterms:creator <https://github.com/NeilGraham> ;
+    dcterms:created "2023-06-22"^^xsd:date ;
+    .
+
+hash:uuid4 a hash:Method, owl:NamedIndividual ;
+    rdfs:label "uuid4" ;
+    dcterms:creator <https://github.com/NeilGraham> ;
+    dcterms:created "2023-06-22"^^xsd:date ;
+    .
+
+hash:uuid5 a hash:Method, owl:NamedIndividual ;
+    rdfs:label "uuid5" ;
+    gist:isCategorizedBy hash:isDeterministic ;
+    dcterms:creator <https://github.com/NeilGraham> ;
+    dcterms:created "2023-06-22"^^xsd:date ;
+    .
+
+hash:shake-128 a hash:Method, owl:NamedIndividual ;
+    rdfs:label "shake-128" ;
+    gist:isCategorizedBy hash:requiresBitSize ;
+    gist:isCategorizedBy hash:isDeterministic ;
+    dcterms:creator <https://github.com/NeilGraham> ;
+    dcterms:created "2023-06-22"^^xsd:date ;
+    .
+
+hash:shake-256 a hash:Method, owl:NamedIndividual ;
+    rdfs:label "shake-256" ;
+    gist:isCategorizedBy hash:requiresBitSize ;
+    gist:isCategorizedBy hash:isDeterministic ;
+    dcterms:creator <https://github.com/NeilGraham> ;
+    dcterms:created "2023-06-22"^^xsd:date ;
+    .
+# _____________________________________________________________________________ #

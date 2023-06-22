@@ -1,192 +1,160 @@
-# RDF Hash
+# rdfhash: RDF Graph Compression Tool
 
-Tool for replacing RDF subjects (Default: blank nodes) with hash of their triples (Default: `sha256`).
+`rdfhash` is a utility for RDF graph compression that works by hashing RDF subjects based on a checksum of their triples, effectively minimizing the size of RDF graphs by consolidating subjects that have identical definitions.
 
-Set of triples on a given subject are sorted by `{predicate} {object}.\n`, then hashed together. 
+## Installation
 
-The hash result replaces the subject URI (Ex: `<md5:fdd61ec7cdbc7241f0289339678dd008>`).
-
-## References
-
-- ### [CLI Reference](docs/cli_reference.md)
-
-## Setup
-
-### Dependencies
-
-- Python: **3.10** or **3.11**
-    - [MacOS/Windows Installer](https://www.python.org/downloads/)
-    - [Debian/Ubuntu (`apt`) Installation Guide](docs/apt_install.md)
-
-### Getting Started
-
-- Install `rdfhash` with `pip`
-
-    ```bash
-    python3.10 -m pip install rdfhash
-    ```
-
-- Test CLI
-
-    ```bash
-    rdfhash --data='[ a <def:class:Person> ] .' --method=sha1
-    ```
-
-    ```
-    <sha1:f0392681a6a701d9672925133bf1207f4be9e412> a <def:class:Person> .
-    ```
-
-- Test Python package
-
-    ```python
-    from rdfhash import rdfhash
-
-    input_str = '[ a <def:class:Product> ] .'
-    output_graph = rdfhash(data=input_str, method='md5') # rdflib.Graph
-
-    print(output_graph.serialize(format='ttl'))
-    ```
-
-    ```
-    <md5:eb636daaff999e296289bda9a8747574> a <def:class:Product> .
-    ```
-
----
-
-## Examples
-
-Test the tool out on the directory `./examples`.
+You can install `rdfhash` using `pip`, a package manager for Python. Ensure [`python`](https://www.python.org/downloads/) and [`pip`](https://pip.pypa.io/en/stable/installation/#installation) are properly installed on your system, then run the following command:
 
 ```bash
-rdfhash --data ./examples/product_0.ttl
+pip install rdfhash
 ```
 
-### Blank Node Input
+## Usage
 
-```text/turtle
-@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+### Command Line Interface (CLI)
 
-@prefix c:         <def:class:> .
-@prefix currency:  <def:class:currency> .
-@prefix p:         <def:property:> .
+#### **Basic Usage**
 
-_:xbox_series_x
-    rdf:type c:Product ;
-    p:name "Microsoft - Xbox Series X 1TB Console - Black" ;
-    p:url <https://www.bestbuy.com/site/microsoft-xbox-series-x-1tb-console-black/6428324.p> ;
-    p:available false ;
-    p:price [
-        rdf:type currency:USDollar ;
-        p:amount "499.99"^^xsd:decimal ;
-    ] .
+By default, all blank nodes in a `text/turtle` file or string are replaced by their hashed definition:
 
-_:ps5
-    rdf:type c:Product ;
-    p:name "Sony - PlayStation 5 Console" ;
-    p:url <https://www.bestbuy.com/site/sony-playstation-5-console/6426149.p> ;
-    p:available false ;
-    p:price [
-        rdf:type currency:USDollar ;
-        p:amount "499.99"^^xsd:decimal ;
-    ] .
+```bash
+rdfhash '
+@prefix hash: <http://rdfhash.com/ontology/> .
+
+[ ] a hash:Attribute ;
+    hash:unit hash:unit:Centimeters ;
+    hash:value 5.38 .'
 ```
 
-### `md5` Output
+Output:
 
-```text/turtle
-<md5:e2edf345944d2d2360ca0af3a2e263e5>
-    a c:Product ;
-    p:available false ;
-    p:name "Microsoft - Xbox Series X 1TB Console - Black" ;
-    p:price <md5:230919236fbe71a692d10c9a693fdd2b> ;
-    p:url <https://www.bestbuy.com/site/microsoft-xbox-series-x-1tb-console-black/6428324.p> .
+```yaml
+@prefix hash: <http://rdfhash.com/ontology/> .
 
-<md5:64c8f3c04879effcad67df5e62c00245>
-    a c:Product ;
-    p:available false ;
-    p:name "Sony - PlayStation 5 Console" ;
-    p:price <md5:230919236fbe71a692d10c9a693fdd2b> ;
-    p:url <https://www.bestbuy.com/site/sony-playstation-5-console/6426149.p> .
-
-<md5:230919236fbe71a692d10c9a693fdd2b>
-    a currency:USDollar ;
-    p:amount 499.99 .
+<sha256:960891b4b1856b4d2c24b977f75d497e4da9e6f147a292524ae51db5fd0e864e> 
+    a hash:Attribute ;
+    hash:unit <http://rdfhash.com/ontology/unit:Centimeters> ;
+    hash:value 5.38 .
 ```
 
-- The nested definition for `499.99` USD is referenced 2 times and defined only once.
+#### **Advanced Usage**
 
-### Simple time-entry data
+The `rdfhash` tool is highly customizable and can be tailored to fit the requirements of any organization:
 
-```text/turtle
-@prefix d:  <data:> .
+```bash
+rdfhash '
+@prefix hash: <http://rdfhash.com/ontology/> .
+@prefix md5: <http://rdfhash.com/instances/md5/> .
 
-d:TimeEntry__ps5__2020_11_12
-    a c:TimeEntry ;
-    p:date "2020-11-12"^^xsd:date ;
-    p:value <md5:64c8f3c04879effcad67df5e62c00245> .
+[ ] a hash:Contact ;
+    hash:phone "487-538-2824" ;
+    hash:email "johnsmith@example.com" ;
+    hash:name [ 
+        a hash:LegalName ;
+        hash:firstName "John" ;
+        hash:lastName "Smith" ;
+    ] ;
+    hash:address [ 
+        a hash:Address ;
+        hash:street "4567 Mountain Peak Way" ;
+        hash:city "Denver" ;
+        hash:state "CO" ;
+        hash:zip "80202" ;
+        hash:country "USA" ;
+    ] ;
+.' \
+--method md5 \
+--template 'http://rdfhash.com/instances/{method}/{value}' \
+--sparql '
+prefix hash: <http://rdfhash.com/ontology/>
+select ?s where { 
+    ?s a ?type . 
+    VALUES ?type {
+        hash:Contact
+        hash:LegalName
+        hash:Address
+    }
+}'
+```
+- `--method` specifies the hashing algorithm to use. The default is `sha256`.
+- `--template` specifies the URI template to use for hashed subjects. The default is `{method}:{value}`.
+- `--sparql` specifies the SPARQL query to use for selecting subjects to hash. The default is `SELECT ?s WHERE { ?s ?p ?o . FILTER(isBlank(?s))}` (Selecting all Blank Node subjects).
+- Run `rdfhash --help` for more information on available parameters.
 
-d:TimeEntry__xbox_series_x__2020_10_12
-    a c:TimeEntry ;
-    p:date "2020-10-12"^^xsd:date ;
-    p:value <md5:e2edf345944d2d2360ca0af3a2e263e5> .
+Output:
 
-d:TimeEntry__ps5__2022_06_01
-    a c:TimeEntry ;
-    p:date "2022-06-01"^^xsd:date ;
-    p:value <md5:64c8f3c04879effcad67df5e62c00245> .
+```yaml
+@prefix hash: <http://rdfhash.com/ontology/> .
+@prefix md5: <http://rdfhash.com/instances/md5/> .
+
+md5:8fc18e400ff531e5cbe02fef751662ba 
+    a hash:Contact ;
+    hash:phone "487-538-2824" ;
+    hash:email "johnsmith@example.com" ;
+    hash:name md5:5fd42f2c072c80e3db760c3fc69b91b8 ;
+    hash:address md5:9a3e3ce644e2c5271015d9665675a8e5 .
+
+md5:5fd42f2c072c80e3db760c3fc69b91b8 
+    a hash:LegalName ;
+    hash:firstName "John" ;
+    hash:lastName "Smith" .
+
+md5:9a3e3ce644e2c5271015d9665675a8e5 
+    a hash:Address ;
+    hash:street "4567 Mountain Peak Way" ;
+    hash:city "Denver" ;
+    hash:state "CO" ;
+    hash:zip "80202" ;
+    hash:country "USA" .
 ```
 
-- If a webscraper encounters the exact same definition, output RDF will be identical. Only triples added are references to the existing triples.
+### Import as a Python Module
 
----
+```python
+from rdfhash import hash_subjects
+
+data = '''
+@prefix hash: <http://rdfhash.com/ontology/> .
+@prefix sha1: <http://rdfhash.com/instances/sha1/> .
+
+<http://rdfhash.com/instances/Meaning-of-Life>
+    a hash:Attribute ;
+    hash:value 42 .
+'''
+
+graph, subjects_replaced = hash_subjects(
+    data,
+    method='sha1',
+    template='http://rdfhash.com/instances/{method}/{value}',
+    sparql_select_subjects='''
+    prefix hash: <http://rdfhash.com/ontology/>
+    SELECT ?s WHERE { ?s a hash:Attribute. }
+    '''
+)
+
+print(graph.serialize(format='turtle'))
+```
+
+Output:
+
+```yaml
+@prefix hash: <http://rdfhash.com/ontology/> .
+@prefix sha1: <http://rdfhash.com/instances/sha1/> .
+
+sha1:4afe716d630b17d5a5d06f0901800e16f3e8c9a4
+    a hash:Attribute ;
+    hash:value 42 .
+```
 
 ## Limitations
 
-- Named graphs are currently not supported.
-- Cannot update triples on hashed subjects.
-  - Updating statements on a hashed subject will result in a hash mismatch.
-  - Blank node statement input:
+It's important to note where `rdfhash` is limited in its functionality. These limitations are expected to be addressed in future versions.
 
-    ```text/turtle
-    [ a <def:class:Person> ] .
-    ```
-
-  - Hashed subject output:
-
-    ```text/turtle
-    <sha1:f0392681a6a701d9672925133bf1207f4be9e412>
-        a <def:class:Person> .
-    ```
-
-  - Updating statements on hashed subject:
-
-    ```text/turtle
-    # Actual sha1 Result: 0c0140462cb569cb700fe5d01bf5efb3185cdb4d
-
-    <sha1:f0392681a6a701d9672925133bf1207f4be9e412>
-        a <def:class:Person> ;
-        <def:property:age> "24"^^<http://www.w3.org/2001/XMLSchema#integer> .
-    ```
-
-    - Mismatch between original hash and actual hash result.
-      - Original: `<sha1:f0392681a6a701d9672925133bf1207f4be9e412>`
-      - Actual: `<sha1:0c0140462cb569cb700fe5d01bf5efb3185cdb4d>`
-
-- Cannot resolve circular dependencies between selected subjects.
-
-    ```text/turtle
-    _:b1 <def:property:connectedTo> _:b2 .
-    _:b2 <def:property:connectedTo> _:b1 .
-    ```
-
-- Using multiple hashing methods is not recommended.
-
-    ```text/turtle
-    _:error_multiple_hash_methods
-        <p:0> <md5:64eee8e358fd1b6340385f4588e5536b> ;
-        <p:1> <sha1:2408f5f487b26247f9a82a6b9ea76f21b79bb12f> .
-    ```
-
-    - Using multiple hashing methods can result in duplicate hashed statements. 
-    - Sticking with 1 hashing method allows for the smallest possible graph size.
+- The `rdfhash` tool does not yet fully support Named Graphs (e.g. `text/trig` or `application/n-quads`)
+  - Users can still attempt to pass RDF data containing Named Graphs, although the expected output has not yet been tested.
+- Circular dependencies between selected subjects are currently not allowed. (e.g. Inverse properties). A [Directed Acyclic Graph (DAG)](https://en.wikipedia.org/wiki/Directed_acyclic_graph) is required at the moment.
+  - Best practice to follow is prioritizing broader-to-narrower relationships. (e.g. A person `Contact` points to `LegalName` and `Address` and not inversely. Multiple contacts can point to the same `LegalName` or `Address`.)
+  - Future `rdfhash` versions will support ignoring specific properties used in a subject's hash, allowing the use of inverse properties.
+- Currently, selected subjects are expected to be fully defined in the input graph.
+  - Future `rdfhash` versions will support connections to a SPARQL endpoint to fetch full context for hashing.

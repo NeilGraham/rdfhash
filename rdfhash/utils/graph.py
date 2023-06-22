@@ -305,12 +305,14 @@ class OxiGraph(__Graph__):
         return self
 
     def serialize(self, path=None, format=None):
+        if format == None:
+            format = self.default_format
         if path:
-            self.graph.dump(path, format)
+            self.graph.dump(path, mime_type=format)
             return True
         else:
             with io.BytesIO() as buffer:
-                self.graph.dump(buffer, format)
+                self.graph.dump(buffer, mime_type=format)
                 buffer.seek(0)
                 res = buffer.read()
             return res.decode("utf-8")
@@ -327,7 +329,9 @@ class OxiGraph(__Graph__):
     def quads(self, quad):
         return self.graph.quads_for_pattern(*quad)
 
-    def triples(self, triple):
+    def triples(self, triple=None):
+        if triple == None:
+            triple = (None, None, None)
         return self.quads(triple)
 
     def term_to_string(self, term, expand_literals=False):
