@@ -34,7 +34,7 @@ file_ext = {
 # _____________________________________________________________________________ #
 
 
-class __Graph__:
+class Graph:
     """Interoperable graph class, based on rdflib.ConjunctiveGraph.
 
     Raises:
@@ -238,9 +238,9 @@ class __Graph__:
 # __   __   __   __   __   __   __   __   __   __   __   __   __   __   __   __ #
 
 
-class RdfLibGraph(__Graph__):
+class RdfLibGraph(Graph):
     """
-    __Graph__ defines interoperable graph class and is based on rdflib.Graph.
+    Graph defines interoperable graph class and is based on rdflib.Graph.
     No need to define methods here.
     """
 
@@ -270,7 +270,7 @@ class OxRdfLibGraph(RdfLibGraph):
 # __   __   __   __   __   __   __   __   __   __   __   __   __   __   __   __ #
 
 
-class OxiGraph(__Graph__):
+class OxiGraph(Graph):
     graph_class = pyoxigraph.Store
 
     default_format = mime["trig"]
@@ -369,7 +369,7 @@ graph_classes = {
 def get_graph(data=None, format="trig", graph_type="oxrdflib", max_path=2048):
     type_data = type(data)
 
-    if issubclass(type_data, __Graph__):
+    if issubclass(type_data, Graph):
         return data
     elif type_data in graph_classes:
         return graph_classes[type_data](data, format)
