@@ -1,4 +1,4 @@
-# rdfhash: RDF Graph Compression Tool
+# rdfhash: RDF Graph Hashing/Compression Tool
 
 `rdfhash` is a utility for RDF graph compression that works by hashing RDF subjects based on a checksum of their triples, effectively minimizing the size of RDF graphs by consolidating subjects that have identical definitions.
 
